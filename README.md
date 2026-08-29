@@ -1,20 +1,89 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# RecycleConnect Myanmar
 
-# Run and deploy your AI Studio app
+Community recycling platform for Myanmar. Citizens scan recyclable items, find centers, and request doorstep collection. Recyclers accept or reject pickups and update status. Admins manage centers and users.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/52af0c93-444d-44fe-bafe-e372ebb14551
+- JWT authentication with hashed passwords
+- Role-based access: **USER**, **RECYCLER**, **ADMIN**
+- AI waste scanner (Gemini when `GEMINI_API_KEY` is set, mock fallback otherwise)
+- Recycling center finder
+- Collection requests: `PENDING` → `ACCEPTED` → `COLLECTED` → `COMPLETED` (or `REJECTED`)
+- Green Points awarded when a request is completed
+- MongoDB when `MONGODB_URI` is set, in-memory store otherwise
 
-## Run Locally
+## Roles
 
-**Prerequisites:**  Node.js
+| Role | Can do |
+| --- | --- |
+| USER | Scan items, view centers, create collection requests, earn points |
+| RECYCLER | View pickup requests, accept or reject, update collection status |
+| ADMIN | Manage recycling centers and user accounts |
 
+## Stack
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- Frontend: React, Vite, Tailwind CSS, React Router
+- Backend: Express, Mongoose, JWT, bcrypt
+- Optional: MongoDB, Google Gemini
+
+## Setup
+
+Requires Node.js.
+
+```bash
+npm run install:all
+```
+
+Copy environment placeholders:
+
+```bash
+cp .env.example .env
+```
+
+Optional values in `.env`:
+
+| Variable | Purpose |
+| --- | --- |
+| `MONGODB_URI` | MongoDB connection. Leave unset to use the in-memory store |
+| `GEMINI_API_KEY` | Gemini vision for the waste scanner |
+| `JWT_SECRET` | Token signing key. Change this in production |
+
+## Run
+
+```bash
+npm run dev
+```
+
+- Web: http://localhost:3000
+- API: http://localhost:8000
+- Health: http://localhost:8000/api/health
+
+The app opens on the landing page. Use **Register** or **Login** from there.
+
+### Demo accounts
+
+Password for all three: `password123`
+
+| Role | Email |
+| --- | --- |
+| USER | `citizen@recycleconnect.mm` |
+| RECYCLER | `recycler@recycleconnect.mm` |
+| ADMIN | `admin@recycleconnect.mm` |
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | API and frontend together |
+| `npm run dev:server` | API only |
+| `npm run dev:client` | Frontend only |
+| `npm run build` | Production build |
+| `npm run start` | Serve the built API |
+| `npm run lint` | Typecheck frontend and server |
+
+## Project layout
+
+```
+frontend/   React app (landing, auth, citizen, recycler, admin)
+server/     Express API, models, JWT middleware, role guards
+```
