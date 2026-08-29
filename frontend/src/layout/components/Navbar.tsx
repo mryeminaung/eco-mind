@@ -37,7 +37,7 @@ export const Navbar: React.FC = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Brand Logo */}
           <Link to="/" className="flex items-center">
-            <BrandLogo size="md" className="rounded-lg bg-black" />
+            <BrandLogo size="md" className="rounded-lg" />
           </Link>
 
           {/* Desktop Navigation Links */}
