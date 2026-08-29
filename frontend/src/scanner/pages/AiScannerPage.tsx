@@ -258,7 +258,7 @@ export const AiScannerPage: React.FC = () => {
                   </div>
                   <ol className="list-decimal list-inside space-y-1 text-slate-600 text-[11px] leading-relaxed">
                     <li>Upload or capture a waste item photo.</li>
-                    <li>Gemini Vision extracts material texture, stamp & shape.</li>
+                    <li>AI vision extracts material texture, stamp & shape.</li>
                     <li>Get customized Myanmar recycling tips & book collection.</li>
                   </ol>
                 </div>

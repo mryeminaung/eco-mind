@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { Recycle, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { BrandLogo } from "@/shared/components/BrandLogo";
 import { roleHomePath, useAuth } from "@/auth/AuthContext";
 
 const DEMO_ACCOUNTS = [
-  { label: "Citizen", email: "citizen@recycleconnect.mm", role: "USER" },
-  { label: "Recycler", email: "recycler@recycleconnect.mm", role: "RECYCLER" },
-  { label: "Admin", email: "admin@recycleconnect.mm", role: "ADMIN" },
+  { label: "Citizen", email: "citizen@ecomind.mm", role: "USER" },
+  { label: "Recycler", email: "recycler@ecomind.mm", role: "RECYCLER" },
+  { label: "Admin", email: "admin@ecomind.mm", role: "ADMIN" },
 ];
 
 export const LoginPage: React.FC = () => {
@@ -17,7 +18,7 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from;
 
-  const [email, setEmail] = useState("citizen@recycleconnect.mm");
+  const [email, setEmail] = useState("citizen@ecomind.mm");
   const [password, setPassword] = useState("password123");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -43,20 +44,14 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-lima-950 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-lima-400 flex items-center justify-center text-lima-950">
-            <Recycle className="w-6 h-6 stroke-[2.5]" />
-          </div>
-          <div>
-            <p className="font-extrabold text-white text-xl leading-tight">RecycleConnect</p>
-            <p className="text-[11px] font-bold text-emerald-400 tracking-[0.2em] uppercase">Myanmar</p>
-          </div>
+        <Link to="/" className="flex items-center justify-center mb-8">
+          <BrandLogo size="lg" className="rounded-xl" />
         </Link>
 
         <div className="rounded-3xl bg-white p-7 shadow-xl">
           <h1 className="text-2xl font-extrabold text-slate-900">Sign in</h1>
           <p className="text-sm text-slate-500 mt-1 mb-6">
-            Use your RecycleConnect account to scan, request pickups, or manage collections.
+            Use your EcoMind account to scan, request pickups, or manage collections.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -115,7 +110,7 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <p className="text-sm text-slate-600 mt-6 text-center">
-            New to RecycleConnect?{" "}
+            New to EcoMind?{" "}
             <Link to="/register" state={from ? { from } : undefined} className="font-semibold text-emerald-700 hover:underline">
               Create an account
             </Link>

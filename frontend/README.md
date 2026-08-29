@@ -1,6 +1,6 @@
-# RecycleConnect Myanmar Web
+# EcoMind Myanmar Web
 
-React frontend for RecycleConnect Myanmar. Landing and auth come first, then role-specific screens for citizens, recyclers, and admins.
+React frontend for EcoMind Myanmar. Landing and auth come first, then role-specific screens for citizens, recyclers, and admins.
 
 Dev server: **http://localhost:3000**. Vite proxies `/api` to **http://localhost:8000**.
 
@@ -29,9 +29,9 @@ Password: `password123`
 
 | Role | Email |
 | --- | --- |
-| USER | `citizen@recycleconnect.mm` |
-| RECYCLER | `recycler@recycleconnect.mm` |
-| ADMIN | `admin@recycleconnect.mm` |
+| USER | `citizen@ecomind.mm` |
+| RECYCLER | `recycler@ecomind.mm` |
+| ADMIN | `admin@ecomind.mm` |
 
 ## Routes
 

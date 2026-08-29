@@ -130,7 +130,7 @@ export const HomePage: React.FC = () => {
             Simple 3-Step Process
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            How RecycleConnect Myanmar Works
+            How EcoMind Myanmar Works
           </h2>
           <p className="text-sm text-slate-600">
             Bringing convenience, transparency, and cash rewards to everyday household & business recycling.

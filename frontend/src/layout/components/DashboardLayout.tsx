@@ -4,7 +4,6 @@ import {
   Menu,
   PlusCircle,
   Sparkles,
-  Recycle,
   MapPin,
   Bell,
   Search,
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { Button } from "@/shared/ui/button";
+import { BrandLogo } from "@/shared/components/BrandLogo";
 import { useAuth } from "@/auth/AuthContext";
 
 export const DashboardLayout: React.FC = () => {
@@ -76,14 +76,9 @@ export const DashboardLayout: React.FC = () => {
             </button>
 
             {/* Mobile Brand Title */}
-            <div className="flex lg:hidden items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-lima-400 flex items-center justify-center text-lima-950 shadow-xs">
-                <Recycle className="w-4 h-4 stroke-[2.5]" />
-              </div>
-              <span className="font-extrabold text-slate-900 text-base tracking-tight">
-                RecycleConnect
-              </span>
-            </div>
+            <Link to="/" className="flex lg:hidden items-center">
+              <BrandLogo size="sm" className="rounded-md bg-black" />
+            </Link>
 
             {/* Desktop Status & Region Tag */}
             <div className="hidden lg:flex items-center gap-3 text-xs text-slate-500">

@@ -152,7 +152,7 @@ export const initialDropOffHubs: DropOffHub[] = [
     operatingHours: "9:00 AM - 9:00 PM Daily",
     hasRewardKiosk: true,
     contactNumber: "+95 9 456 112 300",
-    managedBy: "RecycleConnect Citizen Action",
+    managedBy: "EcoMind Citizen Action",
     status: "open",
   },
   {

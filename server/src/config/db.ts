@@ -21,8 +21,8 @@ export async function connectDB(): Promise<boolean> {
     
     // Set a short timeout so app doesn't hang if local mongodb is not running
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 2500,
-      connectTimeoutMS: 2500,
+      serverSelectionTimeoutMS: 15000,
+      connectTimeoutMS: 15000,
     });
 
     isConnected = true;

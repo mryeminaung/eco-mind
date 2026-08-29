@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Recycle,
   LogIn,
   UserPlus,
   ScanLine,
@@ -12,6 +11,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
+import { BrandLogo } from "@/shared/components/BrandLogo";
 import { roleHomePath, useAuth } from "@/auth/AuthContext";
 
 export const LandingPage: React.FC = () => {
@@ -25,16 +25,8 @@ export const LandingPage: React.FC = () => {
     <div className="min-h-screen bg-lima-950 text-white">
       <header className="sticky top-0 z-30 border-b border-white/10 bg-lima-950/90 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-lima-400 flex items-center justify-center text-lima-950">
-              <Recycle className="w-5 h-5 stroke-[2.5]" />
-            </div>
-            <div>
-              <p className="font-extrabold text-white leading-tight">RecycleConnect</p>
-              <p className="text-[10px] font-bold text-emerald-400 tracking-[0.18em] uppercase">
-                Myanmar
-              </p>
-            </div>
+          <Link to="/" className="flex items-center">
+            <BrandLogo size="md" className="rounded-lg" />
           </Link>
 
           {user ? (

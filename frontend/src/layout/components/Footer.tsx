@@ -14,7 +14,7 @@ export const Footer: React.FC = () => {
                 <Recycle className="w-4 h-4" />
               </div>
               <span className="font-bold text-slate-900 text-base">
-                RecycleConnect Myanmar
+                EcoMind Myanmar
               </span>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
@@ -97,14 +97,14 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>support@recycleconnect.mm</span>
+                <span>support@ecomind.mm</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
-          <p>© {new Date().getFullYear()} RecycleConnect Myanmar. Community Open Platform.</p>
+          <p>© {new Date().getFullYear()} EcoMind Myanmar. Community Open Platform.</p>
           <div className="flex items-center gap-4 text-xs">
             <span>Environmental MVP Edition</span>
             <span>•</span>

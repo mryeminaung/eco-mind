@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Recycle,
   MapPin,
   Truck,
   PlusCircle,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
+import { BrandLogo } from "@/shared/components/BrandLogo";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -36,23 +36,8 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-sm group-hover:bg-emerald-700 transition-colors">
-              <Recycle className="w-5 h-5 transition-transform group-hover:rotate-45" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-slate-900 text-lg tracking-tight">
-                  RecycleConnect
-                </span>
-                <span className="text-xs px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold">
-                  Myanmar
-                </span>
-              </div>
-              <p className="text-[10px] text-slate-500 font-medium">
-                အမှိုက်ခွဲခြားခြင်းနှင့် ပြန်လည်အသုံးချမှု ကွန်ရက်
-              </p>
-            </div>
+          <Link to="/" className="flex items-center">
+            <BrandLogo size="md" className="rounded-lg bg-black" />
           </Link>
 
           {/* Desktop Navigation Links */}

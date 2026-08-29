@@ -5,11 +5,22 @@ import { hashPasswordSync, toPublicUser } from "../utils/auth";
 
 const DEMO_PASSWORD_HASH = hashPasswordSync("password123");
 
+function emailAliases(email: string): string[] {
+  const aliases = [email];
+  if (email.endsWith("@ecomind.mm")) {
+    aliases.push(email.replace(/@ecomind\.mm$/, "@recycleconnect.mm"));
+  }
+  if (email.endsWith("@recycleconnect.mm")) {
+    aliases.push(email.replace(/@recycleconnect\.mm$/, "@ecomind.mm"));
+  }
+  return aliases;
+}
+
 const demoUsers: User[] = [
   {
     id: "usr-maythiri",
     name: "May Thiri",
-    email: "citizen@recycleconnect.mm",
+    email: "citizen@ecomind.mm",
     password: DEMO_PASSWORD_HASH,
     role: "USER",
     points: 405,
@@ -19,7 +30,7 @@ const demoUsers: User[] = [
   {
     id: "rec-1",
     name: "RecyGlo Myanmar",
-    email: "recycler@recycleconnect.mm",
+    email: "recycler@ecomind.mm",
     password: DEMO_PASSWORD_HASH,
     role: "RECYCLER",
     points: 0,
@@ -29,7 +40,7 @@ const demoUsers: User[] = [
   {
     id: "admin-1",
     name: "Platform Admin",
-    email: "admin@recycleconnect.mm",
+    email: "admin@ecomind.mm",
     password: DEMO_PASSWORD_HASH,
     role: "ADMIN",
     points: 0,
@@ -102,16 +113,16 @@ export const UserStore = {
 
   async getByEmail(email: string): Promise<User | null> {
     await seedDbUsers();
-    const normalized = email.trim().toLowerCase();
+    const aliases = emailAliases(email.trim().toLowerCase());
     if (isDbConnected()) {
       try {
-        const doc = await (UserModel as any).findOne({ email: normalized }).select("+password");
+        const doc = await (UserModel as any).findOne({ email: { $in: aliases } }).select("+password");
         if (doc) return mapUser(doc);
       } catch {
         // Fall through to memory
       }
     }
-    return inMemoryUsers.find((u) => u.email === normalized) || null;
+    return inMemoryUsers.find((u) => aliases.includes(u.email)) || null;
   },
 
   async create(data: {

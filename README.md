@@ -1,4 +1,4 @@
-# RecycleConnect Myanmar
+# EcoMind Myanmar
 
 Community recycling platform for Myanmar. Citizens scan recyclable items, find centers, and request doorstep collection. Recyclers accept or reject pickups and update status. Admins manage centers and users.
 
@@ -6,7 +6,7 @@ Community recycling platform for Myanmar. Citizens scan recyclable items, find c
 
 - JWT authentication with hashed passwords
 - Role-based access: **USER**, **RECYCLER**, **ADMIN**
-- AI waste scanner (Gemini when `GEMINI_API_KEY` is set, mock fallback otherwise)
+- AI waste scanner (OpenRouter when `OPENROUTER_API_KEY` is set, mock fallback otherwise)
 - Recycling center finder
 - Collection requests: `PENDING` → `ACCEPTED` → `COLLECTED` → `COMPLETED` (or `REJECTED`)
 - Green Points awarded when a request is completed
@@ -24,7 +24,7 @@ Community recycling platform for Myanmar. Citizens scan recyclable items, find c
 
 - Frontend: React, Vite, Tailwind CSS, React Router
 - Backend: Express, Mongoose, JWT, bcrypt
-- Optional: MongoDB, Google Gemini
+- Optional: MongoDB, OpenRouter (or Gemini) for vision
 
 ## Setup
 
@@ -45,7 +45,9 @@ Optional values in `.env`:
 | Variable | Purpose |
 | --- | --- |
 | `MONGODB_URI` | MongoDB connection. Leave unset to use the in-memory store |
-| `GEMINI_API_KEY` | Gemini vision for the waste scanner |
+| `OPENROUTER_API_KEY` | OpenRouter vision for the waste scanner |
+| `OPENROUTER_MODEL` | Optional OpenRouter model. Default: `google/gemini-2.5-flash` |
+| `GEMINI_API_KEY` | Optional direct Gemini fallback if OpenRouter is unset |
 | `JWT_SECRET` | Token signing key. Change this in production |
 
 ## Run
@@ -66,9 +68,9 @@ Password for all three: `password123`
 
 | Role | Email |
 | --- | --- |
-| USER | `citizen@recycleconnect.mm` |
-| RECYCLER | `recycler@recycleconnect.mm` |
-| ADMIN | `admin@recycleconnect.mm` |
+| USER | `citizen@ecomind.mm` |
+| RECYCLER | `recycler@ecomind.mm` |
+| ADMIN | `admin@ecomind.mm` |
 
 ## Scripts
 

@@ -15,7 +15,8 @@ import rewardRoutes from "./routes/rewardRoutes";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
 
 async function startServer() {
   const app = express();
@@ -35,10 +36,14 @@ async function startServer() {
   app.get("/api/health", (_req: Request, res: Response) => {
     res.json({
       status: "ok",
-      app: "RecycleConnect Myanmar API",
+      app: "EcoMind Myanmar API",
       timestamp: new Date().toISOString(),
       database: isDbConnected() ? "MongoDB Connected" : "In-Memory Store (Active)",
-      geminiAi: Boolean(process.env.GEMINI_API_KEY) ? "Active" : "Mock Fallback Mode",
+      visionAi: process.env.OPENROUTER_API_KEY
+        ? "OpenRouter Active"
+        : process.env.GEMINI_API_KEY
+          ? "Gemini Active"
+          : "Mock Fallback Mode",
     });
   });
 
@@ -64,7 +69,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🌿 RecycleConnect Myanmar API running at http://0.0.0.0:${PORT}`);
+    console.log(`🌿 EcoMind Myanmar API running at http://0.0.0.0:${PORT}`);
   });
 }
 

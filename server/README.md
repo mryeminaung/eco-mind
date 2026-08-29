@@ -1,6 +1,6 @@
-# RecycleConnect Myanmar API
+# EcoMind Myanmar API
 
-Express backend for RecycleConnect Myanmar. Handles JWT auth, role-based access, collection requests, recycling centers, rewards, and the waste scanner.
+Express backend for EcoMind Myanmar. Handles JWT auth, role-based access, collection requests, recycling centers, rewards, and the waste scanner.
 
 Listens on **http://localhost:8000**.
 
@@ -25,7 +25,9 @@ Loaded from the repo-root `.env` via `dotenv`.
 | --- | --- | --- |
 | `JWT_SECRET` | No | Signs tokens. Falls back to an MVP default |
 | `MONGODB_URI` | No | MongoDB connection string |
-| `GEMINI_API_KEY` | No | Gemini vision for `POST /api/scan` |
+| `OPENROUTER_API_KEY` | No | OpenRouter vision for `POST /api/scan` |
+| `OPENROUTER_MODEL` | No | Vision model. Default: `google/gemini-2.5-flash` |
+| `GEMINI_API_KEY` | No | Direct Gemini fallback if OpenRouter is unset |
 | `NODE_ENV` | No | In `production`, serves `frontend/dist` |
 
 ## Auth
@@ -52,9 +54,9 @@ Password: `password123`
 
 | Role | Email |
 | --- | --- |
-| USER | `citizen@recycleconnect.mm` |
-| RECYCLER | `recycler@recycleconnect.mm` |
-| ADMIN | `admin@recycleconnect.mm` |
+| USER | `citizen@ecomind.mm` |
+| RECYCLER | `recycler@ecomind.mm` |
+| ADMIN | `admin@ecomind.mm` |
 
 ## Routes
 
@@ -104,5 +106,5 @@ src/
   data/               In-memory store + seeds
   routes/             Express routers
   controllers/        Request handlers
-  services/           Gemini scanner
+  services/           OpenRouter / Gemini scanner
 ```

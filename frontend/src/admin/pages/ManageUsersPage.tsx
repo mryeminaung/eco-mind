@@ -74,7 +74,7 @@ export const ManageUsersPage: React.FC = () => {
             Manage users
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Update roles and remove accounts across RecycleConnect Myanmar.
+            Update roles and remove accounts across EcoMind Myanmar.
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={loadUsers} className="gap-1.5">

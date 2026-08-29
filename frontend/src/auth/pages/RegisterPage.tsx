@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { Recycle, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Select } from "@/shared/ui/select";
+import { BrandLogo } from "@/shared/components/BrandLogo";
 import { UserRole } from "@/types";
 import { roleHomePath, useAuth } from "@/auth/AuthContext";
 
@@ -41,14 +42,8 @@ export const RegisterPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-lima-950 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-lima-400 flex items-center justify-center text-lima-950">
-            <Recycle className="w-6 h-6 stroke-[2.5]" />
-          </div>
-          <div>
-            <p className="font-extrabold text-white text-xl leading-tight">RecycleConnect</p>
-            <p className="text-[11px] font-bold text-emerald-400 tracking-[0.2em] uppercase">Myanmar</p>
-          </div>
+        <Link to="/" className="flex items-center justify-center mb-8">
+          <BrandLogo size="lg" className="rounded-xl" />
         </Link>
 
         <div className="rounded-3xl bg-white p-7 shadow-xl">

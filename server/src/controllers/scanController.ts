@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { analyzeWasteImage } from "../services/geminiService";
+import { analyzeWasteImage, getVisionSourceLabel } from "../services/visionService";
 
 export async function scanWaste(req: Request, res: Response) {
   try {
@@ -18,7 +18,7 @@ export async function scanWaste(req: Request, res: Response) {
     res.json({
       success: true,
       data: result,
-      source: process.env.GEMINI_API_KEY ? "Gemini 3.7 Flash AI Vision" : "Mock AI Vision Engine",
+      source: getVisionSourceLabel(),
     });
   } catch (error: any) {
     console.error("Error in /api/scan route:", error);

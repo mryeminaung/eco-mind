@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  Recycle,
   Home,
   ScanLine,
   MapPin,
@@ -16,6 +15,7 @@ import {
   LogOut,
   X,
 } from "lucide-react";
+import { BrandLogo } from "@/shared/components/BrandLogo";
 import { useAuth } from "@/auth/AuthContext";
 
 interface SidebarProps {
@@ -168,21 +168,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
           <Link
             to="/"
             onClick={onCloseMobile}
-            className="flex items-center gap-3.5 group"
+            className="flex items-center group"
           >
-            {/* Lime Logo Box */}
-            <div className="w-12 h-12 rounded-2xl bg-lima-400 flex items-center justify-center text-lima-950 shadow-md group-hover:scale-105 transition-transform">
-              <Recycle className="w-6 h-6 stroke-[2.5]" />
-            </div>
-
-            <div>
-              <h1 className="font-extrabold text-white text-lg sm:text-xl tracking-tight leading-tight">
-                RecycleConnect
-              </h1>
-              <p className="text-[11px] font-bold text-emerald-400 tracking-[0.2em] uppercase">
-                MYANMAR
-              </p>
-            </div>
+            <BrandLogo size="lg" className="rounded-xl group-hover:scale-[1.02] transition-transform" />
           </Link>
 
           {/* Close button on mobile */}
