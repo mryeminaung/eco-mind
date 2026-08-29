@@ -20,12 +20,14 @@ import { RecyclerRequestsPage } from "@/features/collector/pages/RecyclerRequest
 import { ManageUsersPage } from "@/features/admin/pages/ManageUsersPage";
 import { LandingPage } from "@/features/landing/LandingPage";
 import { SettingsPage } from "@/features/settings/pages/SettingsPage";
+import { DocumentMeta } from "@/shared/seo/DocumentMeta";
 
 export default function App() {
   return (
     <LocaleProvider>
       <AuthProvider>
         <BrowserRouter>
+        <DocumentMeta />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/community" element={<CommunityImpactPage />} />

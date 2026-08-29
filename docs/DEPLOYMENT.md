@@ -35,6 +35,7 @@ JWT lifetime is 7 days.
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `VITE_API_URL` | When API is on another origin | API origin only, no trailing slash. Example: `https://ecomind-api.onrender.com` |
+| `VITE_SITE_URL` | For social previews | Public frontend origin, no trailing slash. Production: `https://eco-mind-myanmar.vercel.app` |
 
 Vite bakes `VITE_*` into the JS bundle. Changing it later means a rebuild.
 
@@ -113,8 +114,9 @@ You should see `"status": "ok"` and `"database": "MongoDB Connected"`.
 | Build command | `npm run build` |
 | Output | `dist` |
 | Env | `VITE_API_URL=https://your-api.onrender.com` |
+| | `VITE_SITE_URL=https://eco-mind-myanmar.vercel.app` |
 
-Redeploy after you change `VITE_API_URL`.
+Redeploy after you change `VITE_API_URL` or `VITE_SITE_URL`.
 
 **Netlify** (if you prefer)
 

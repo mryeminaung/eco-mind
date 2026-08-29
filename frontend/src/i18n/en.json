@@ -4,6 +4,13 @@
   "lang.switchToEn": "Switch to English",
   "lang.switchToMy": "Switch to Myanmar",
 
+  "seo.siteName": "EcoMind Myanmar",
+  "seo.homeTitle": "EcoMind Myanmar — Scan waste, request pickup, earn Green Points",
+  "seo.homeDescription": "Connect with verified collectors in Yangon, Mandalay, and nationwide. Schedule doorstep pickups, get fair scrap rates, and earn Green Points.",
+  "seo.defaultDescription": "Community recycling platform for Myanmar. Scan waste, book doorstep pickups, find drop-off hubs, and earn Green Points.",
+  "seo.ogImageAlt": "EcoMind Myanmar logo",
+  "seo.keywords": "recycling Myanmar, doorstep pickup, scrap buyback, Yangon, Mandalay, Green Points, EcoMind, drop-off hubs",
+
   "nav.overview": "Overview",
   "nav.rewards": "Green Rewards",
   "nav.scan": "AI Waste Scanner",
