@@ -1,11 +1,7 @@
-import path from "path";
-import dotenv from "dotenv";
+import "../config/env";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UserRole } from "../types";
-
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
-dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
 
 const JWT_SECRET = process.env.JWT_SECRET || "ecomind-myanmar-mvp-secret";
 const JWT_EXPIRES_IN = "7d";

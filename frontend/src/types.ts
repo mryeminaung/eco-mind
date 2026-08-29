@@ -148,6 +148,7 @@ export interface AuthUser {
   email: string;
   role: UserRole;
   points: number;
+  badgeAward?: string;
   createdAt?: string;
   updatedAt?: string;
 }

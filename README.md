@@ -10,7 +10,7 @@ Self-register as **USER** or **RECYCLER**. Admin accounts are seeded or assigned
 
 - View the landing page and platform overview
 - Browse recycling centers, services, and drop-off hubs
-- View community events and join a volunteer drive
+- View community events on the public community page
 - See public impact stats and material buyback rates
 - Register or log in
 
@@ -27,6 +27,7 @@ Home after login: `/dashboard`
 - Earn Green Points when a recycler marks a request completed
 - View points, impact, badges, and points history on the citizen dashboard
 - Join community cleanup events
+- Update name, email, and password in Settings
 
 ### RECYCLER (Collector)
 
@@ -40,17 +41,20 @@ Home after login: `/collector`
 - Complete a collected request and log the waste
 - Award Green Points to the citizen on completion
 - Browse recycling services and drop-off hubs
+- Update name, email, and password in Settings
 
 ### ADMIN
 
-Home after login: `/admin/users`
+Home after login: `/overview`
 
-- Use every USER feature (scanner, requests, dashboard, points)
+- See platform impact, scrap rates, and featured partners
+- Use every USER feature (scanner, requests, pickups)
 - Use every RECYCLER feature (request queue and status updates)
 - List all user accounts
 - Change a user's role (`USER`, `RECYCLER`, or `ADMIN`)
 - Delete a user (not yourself)
 - Add, edit, or delete recycling centers
+- Update name, email, and password in Settings
 
 ## Platform
 
@@ -75,13 +79,14 @@ Requires Node.js.
 npm run install:all
 ```
 
-Copy environment placeholders:
+Copy environment placeholders into each app folder:
 
 ```bash
-cp .env.example .env
+cp frontend/.env.example frontend/.env
+cp server/.env.example server/.env
 ```
 
-Optional values in `.env`:
+Optional values in `server/.env`:
 
 | Variable | Purpose |
 | --- | --- |
@@ -90,6 +95,8 @@ Optional values in `.env`:
 | `OPENROUTER_MODEL` | Optional OpenRouter model. Default: `google/gemini-2.5-flash` |
 | `GEMINI_API_KEY` | Optional direct Gemini fallback if OpenRouter is unset |
 | `JWT_SECRET` | Token signing key. Change this in production |
+
+`frontend/.env` only needs `VITE_API_URL`. Leave it empty locally so Vite proxies `/api` to the API.
 
 ## Run
 
@@ -111,7 +118,7 @@ Password for all three: `password123`
 | --- | --- | --- |
 | USER | `citizen@ecomind.mm` | `/dashboard` |
 | RECYCLER | `recycler@ecomind.mm` | `/collector` |
-| ADMIN | `admin@ecomind.mm` | `/admin/users` |
+| ADMIN | `admin@ecomind.mm` | `/overview` |
 
 ## Scripts
 

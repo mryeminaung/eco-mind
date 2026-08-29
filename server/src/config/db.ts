@@ -26,10 +26,11 @@ export async function connectDB(): Promise<boolean> {
     });
 
     isConnected = true;
-    console.log("✅ [MongoDB] Connected successfully to database");
+    const dbName = mongoose.connection.name || "ecomind";
+    console.log(`✅ [MongoDB] Connected to local database "${dbName}" (${mongoose.connection.host}:${mongoose.connection.port})`);
     return true;
   } catch (error: any) {
-    console.warn("⚠️ [MongoDB] Could not connect to remote MongoDB instance (" + (error?.message || error) + "). Using fallback in-memory store.");
+    console.warn("⚠️ [MongoDB] Could not connect (" + (error?.message || error) + "). Using fallback in-memory store. Compass will stay empty.");
     isConnected = false;
     return false;
   }

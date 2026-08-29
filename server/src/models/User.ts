@@ -12,6 +12,7 @@ const UserSchema = new Schema(
       required: true,
     },
     points: { type: Number, default: 0, min: 0 },
+    badgeAward: { type: String, default: "Green Starter", trim: true },
   },
   {
     timestamps: true,

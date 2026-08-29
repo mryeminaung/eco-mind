@@ -3,6 +3,7 @@ import { ImpactStats } from "@/types";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { formatWeight, formatCurrency } from "@/shared/utils";
+import { useLocale } from "@/i18n/LocaleContext";
 import {
   Scale,
   Leaf,
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export const ImpactOverview: React.FC<Props> = ({ stats, dbStatus, loading }) => {
+  const { t } = useLocale();
   if (loading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
@@ -33,37 +35,33 @@ export const ImpactOverview: React.FC<Props> = ({ stats, dbStatus, loading }) =>
   const statItems = [
     {
       id: "stat-kg",
-      label: "Total Waste Diverted",
-      labelMy: "ပြန်လည်အသုံးချပြီး စွန့်ပစ်ပစ္စည်း",
+      label: t("impact.kg"),
       value: formatWeight(stats.totalKgRecycled),
-      subtext: "Kept out of Yangon & Mandalay landfills",
+      subtext: t("impact.kgSub"),
       icon: Scale,
       color: "text-emerald-700 bg-emerald-100/70 border-emerald-200/50",
     },
     {
       id: "stat-co2",
-      label: "CO₂ Emissions Reduced",
-      labelMy: "ကာဗွန်လျှော့ချနိုင်မှု",
+      label: t("impact.co2"),
       value: `${(stats.co2SavedKg / 1000).toFixed(1)} tons`,
-      subtext: `Equivalent to planting ~${stats.treesEquivalent.toLocaleString()} mature trees`,
+      subtext: t("impact.co2Sub", { trees: stats.treesEquivalent.toLocaleString() }),
       icon: Leaf,
       color: "text-teal-700 bg-teal-100/70 border-teal-200/50",
     },
     {
       id: "stat-mmk",
-      label: "Citizen Scrap Earnings",
-      labelMy: "ပြည်သူများထံ ပြန်လည်ပေးအပ်ငွေ",
+      label: t("impact.mmk"),
       value: formatCurrency(stats.totalMmkPaidToCitizens),
-      subtext: "Direct cash back into citizen hands",
+      subtext: t("impact.mmkSub"),
       icon: Coins,
       color: "text-amber-700 bg-amber-100/70 border-amber-200/50",
     },
     {
       id: "stat-pickups",
-      label: "Active Pickup Dispatches",
-      labelMy: "လက်ရှိ လိုက်လံသိမ်းဆည်းမှုများ",
+      label: t("impact.pickups"),
       value: stats.activePickups.toString(),
-      subtext: `${stats.verifiedCollectors} registered collectors active`,
+      subtext: t("impact.pickupsSub", { count: stats.verifiedCollectors }),
       icon: Truck,
       color: "text-sky-700 bg-sky-100/70 border-sky-200/50",
     },
@@ -74,7 +72,7 @@ export const ImpactOverview: React.FC<Props> = ({ stats, dbStatus, loading }) =>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-bold text-slate-900">
-            Myanmar Live Environmental Impact
+            {t("impact.title")}
           </h2>
           <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -84,7 +82,7 @@ export const ImpactOverview: React.FC<Props> = ({ stats, dbStatus, loading }) =>
         {dbStatus && (
           <Badge variant="outline" className="text-[11px] gap-1.5 py-1 text-slate-600 bg-white">
             <Database className="w-3 h-3 text-emerald-600" />
-            <span>Backend Store: {dbStatus.type}</span>
+            <span>{t("impact.backend", { type: dbStatus.type })}</span>
           </Badge>
         )}
       </div>

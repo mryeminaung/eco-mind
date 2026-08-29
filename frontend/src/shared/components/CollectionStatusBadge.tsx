@@ -1,5 +1,7 @@
 import React from "react";
 import { CollectionStatus } from "@/types";
+import { useLocale } from "@/i18n/LocaleContext";
+import { statusLabelKey } from "@/i18n/labels";
 import { Clock, CheckCircle2, Truck, Check, AlertCircle } from "lucide-react";
 
 interface StatusBadgeProps {
@@ -64,6 +66,7 @@ export const CollectionStatusBadge: React.FC<StatusBadgeProps> = ({
     },
   };
 
+  const { t } = useLocale();
   const config = configMap[status] || {
     label: status,
     bg: "bg-slate-100",
@@ -93,7 +96,7 @@ export const CollectionStatusBadge: React.FC<StatusBadgeProps> = ({
     >
       <span className={`w-1.5 h-1.5 rounded-full ${config.dot} animate-pulse`} />
       <Icon className={iconSizes} />
-      <span>{config.label}</span>
+      <span>{t(statusLabelKey(status)) || config.label}</span>
     </span>
   );
 };

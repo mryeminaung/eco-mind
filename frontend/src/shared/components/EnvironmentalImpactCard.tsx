@@ -101,9 +101,6 @@ export const EnvironmentalImpactCard: React.FC<EnvironmentalImpactCardProps> = (
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="eco" className="text-xs">
-              Verified Metrics
-            </Badge>
           </div>
         </CardHeader>
 

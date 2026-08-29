@@ -1,0 +1,228 @@
+import React, { useState } from "react";
+import {
+  Sparkles,
+  Recycle,
+  Package,
+  Wine,
+  Cylinder,
+  Cpu,
+  History,
+  ScanLine,
+} from "lucide-react";
+import { ImageUpload } from "@/features/scanner/components/ImageUpload";
+import { ScannerLoadingState } from "@/features/scanner/components/ScannerLoadingState";
+import { ScanResultCard } from "@/features/scanner/components/ScanResultCard";
+import { api } from "@/shared/api";
+import { ScanResult } from "@/types";
+import { Button } from "@/shared/ui/button";
+import { Badge } from "@/shared/ui/badge";
+import { PageSectionHeader } from "@/shared/components/PageSectionHeader";
+import { useLocale } from "@/i18n/LocaleContext";
+
+export const AiScannerPage: React.FC = () => {
+  const { t } = useLocale();
+  const categories = [
+    { name: t("scan.cat.plastic"), hint: t("scan.cat.plasticHint"), icon: Recycle },
+    { name: t("scan.cat.paper"), hint: t("scan.cat.paperHint"), icon: Package },
+    { name: t("scan.cat.glass"), hint: t("scan.cat.glassHint"), icon: Wine },
+    { name: t("scan.cat.metal"), hint: t("scan.cat.metalHint"), icon: Cylinder },
+    { name: t("scan.cat.ewaste"), hint: t("scan.cat.ewasteHint"), icon: Cpu },
+  ];
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
+  const [isLoading, setIsLoading] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [apiSource, setApiSource] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const [scanHistory, setScanHistory] = useState<
+    Array<{ id: string; result: ScanResult; timestamp: string; image: string }>
+  >([]);
+
+  const handleImageSelected = async (base64: string, mimeType: string) => {
+    setSelectedImage(base64);
+    setImageMimeType(mimeType);
+    setError(null);
+    setScanResult(null);
+    triggerScan(base64, mimeType);
+  };
+
+  const triggerScan = async (base64Data?: string, mime?: string) => {
+    const imgToScan = base64Data || selectedImage;
+    const typeToScan = mime || imageMimeType;
+
+    if (!imgToScan) {
+      setError(t("scan.needImage"));
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.scanWaste(imgToScan, typeToScan);
+      setScanResult(response.data);
+      setApiSource(response.source);
+      setScanHistory((prev) => [
+        {
+          id: `scan-${Date.now()}`,
+          result: response.data,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          image: imgToScan,
+        },
+        ...prev.slice(0, 7),
+      ]);
+    } catch (err: any) {
+      console.error("Scan error:", err);
+      setError(err?.message || t("scan.failed"));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClear = () => {
+    setSelectedImage(null);
+    setScanResult(null);
+    setError(null);
+  };
+
+  return (
+    <div className="space-y-6 pb-10">
+      <PageSectionHeader
+        title={t("page.scan.title")}
+        description={t("page.scan.description")}
+        icon={Recycle}
+        pills={[
+          { id: "photo", label: t("page.scan.photo") },
+          { id: "identify", label: t("page.scan.identify") },
+          { id: "recycle", label: t("page.scan.recycle") },
+        ]}
+      />
+
+      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {categories.map((cat) => (
+          <div
+            key={cat.name}
+            className="shrink-0 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2"
+          >
+            <span className="w-8 h-8 rounded-xl bg-lima-100 text-lima-800 flex items-center justify-center">
+              <cat.icon className="w-4 h-4" />
+            </span>
+            <div>
+              <p className="text-xs font-bold text-slate-900">{cat.name}</p>
+              <p className="text-[11px] text-slate-500">{cat.hint}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="lg:col-span-6 space-y-3">
+          <ImageUpload
+            onImageSelected={handleImageSelected}
+            isLoading={isLoading}
+            selectedImage={selectedImage}
+            onClear={handleClear}
+          />
+
+          {selectedImage && !isLoading && !scanResult && !error && (
+            <Button variant="eco" className="w-full gap-2 font-bold" onClick={() => triggerScan()}>
+              <Sparkles className="w-4 h-4" />
+              {t("scan.analyze")}
+            </Button>
+          )}
+
+          {error && (
+            <div className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm">
+              <span>{error}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-rose-700 shrink-0"
+                onClick={() => triggerScan()}
+              >
+                {t("scan.retry")}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="lg:col-span-6 space-y-6">
+          {isLoading ? (
+            <ScannerLoadingState previewImage={selectedImage} />
+          ) : scanResult ? (
+            <ScanResultCard
+              result={scanResult}
+              source={apiSource}
+              onScanAnother={handleClear}
+              scannedImage={selectedImage}
+            />
+          ) : (
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 min-h-[22rem] flex flex-col justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-lima-100 text-lima-800 flex items-center justify-center mb-4">
+                <ScanLine className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900">{t("scan.empty.title")}</h3>
+              <p className="text-sm text-slate-600 mt-1.5 max-w-sm leading-relaxed">
+                {t("scan.empty.text")}
+              </p>
+              <ul className="mt-5 space-y-2 text-sm text-slate-600">
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-lima-500" />
+                  {t("scan.empty.tip1")}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-lima-500" />
+                  {t("scan.empty.tip2")}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-lima-500" />
+                  {t("scan.empty.tip3")}
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {scanHistory.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+              <History className="w-4 h-4 text-emerald-600" />
+              {t("scan.session")}
+            </h2>
+            <span className="text-xs text-slate-500">{t("scan.sessionCount", { count: scanHistory.length })}</span>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {scanHistory.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  setSelectedImage(item.image);
+                  setScanResult(item.result);
+                  setError(null);
+                }}
+                className="shrink-0 w-36 text-left rounded-2xl border border-slate-200 bg-white p-2 hover:border-emerald-400 transition-colors"
+              >
+                <div className="h-20 rounded-xl overflow-hidden bg-slate-100 mb-2">
+                  <img src={item.image} alt={item.result.material} className="w-full h-full object-cover" />
+                </div>
+                <p className="text-xs font-bold text-slate-900 truncate">{item.result.material}</p>
+                <div className="flex items-center justify-between gap-1 mt-0.5">
+                  <span className="text-[11px] text-slate-500 truncate">{item.timestamp}</span>
+                  <Badge
+                    variant={item.result.recyclable ? "success" : "destructive"}
+                    className="text-[10px] px-1.5 py-0"
+                  >
+                    {item.result.recyclable ? t("common.yes") : t("common.no")}
+                  </Badge>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+};

@@ -6,7 +6,7 @@ Listens on **http://localhost:8000**.
 
 ## Setup
 
-From the repo root, copy `.env.example` to `.env`. Then from this folder:
+Copy `server/.env.example` to `server/.env`. Then from this folder:
 
 ```bash
 npm install
@@ -19,7 +19,7 @@ MongoDB is optional. If `MONGODB_URI` is missing or the connection fails, the AP
 
 ## Environment
 
-Loaded from the repo-root `.env` via `dotenv`.
+Loaded from `server/.env` via `dotenv`. The frontend uses `frontend/.env` separately.
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
@@ -66,6 +66,8 @@ Password: `password123`
 | POST | `/api/auth/register` | Public |
 | POST | `/api/auth/login` | Public |
 | GET | `/api/auth/me` | Authenticated |
+| PATCH | `/api/auth/me` | Authenticated (name, email) |
+| PATCH | `/api/auth/password` | Authenticated |
 | GET | `/api/users` | ADMIN |
 | PATCH | `/api/users/:id` | ADMIN |
 | DELETE | `/api/users/:id` | ADMIN |
@@ -80,7 +82,8 @@ Password: `password123`
 | GET | `/api/pickups` | Public |
 | POST | `/api/pickups` | USER, ADMIN |
 | PATCH | `/api/pickups/:id/status` | RECYCLER, ADMIN |
-| GET | `/api/services`, `/api/hubs`, `/api/stats`, `/api/community` | Public |
+| GET | `/api/services`, `/api/hubs`, `/api/stats`, `/api/community/events` | Public |
+| POST | `/api/community/events/:id/join` | Authenticated |
 
 Collection status: `PENDING` → `ACCEPTED` → `COLLECTED` → `COMPLETED`, or `REJECTED`. Completing a request awards Green Points.
 

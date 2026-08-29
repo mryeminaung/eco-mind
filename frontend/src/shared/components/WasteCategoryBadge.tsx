@@ -1,6 +1,7 @@
 import React from "react";
 import { WasteCategory } from "@/types";
 import { Badge } from "../ui/badge";
+import { useLocale } from "@/i18n/LocaleContext";
 import {
   Package,
   FileText,
@@ -72,6 +73,7 @@ export const categoryMeta: Record<
 };
 
 export const WasteCategoryBadge: React.FC<Props> = ({ category, showIcon = true }) => {
+  const { locale } = useLocale();
   const meta = categoryMeta[category] || {
     label: category,
     labelMy: "",
@@ -86,7 +88,7 @@ export const WasteCategoryBadge: React.FC<Props> = ({ category, showIcon = true 
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border ${meta.color}`}
     >
       {showIcon && <Icon className="w-3.5 h-3.5" />}
-      <span>{meta.label}</span>
+      <span>{locale === "my" && meta.labelMy ? meta.labelMy : meta.label}</span>
     </span>
   );
 };

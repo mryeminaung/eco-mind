@@ -2,6 +2,7 @@ import { User, PublicUser, UserRole } from "../types";
 import { isDbConnected } from "../config/db";
 import { UserModel } from "../models/User";
 import { hashPasswordSync, toPublicUser } from "../utils/auth";
+import { badgeAwardFromPoints } from "../utils/badgeAward";
 
 const DEMO_PASSWORD_HASH = hashPasswordSync("password123");
 
@@ -24,6 +25,7 @@ const demoUsers: User[] = [
     password: DEMO_PASSWORD_HASH,
     role: "USER",
     points: 405,
+    badgeAward: badgeAwardFromPoints(405),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -34,6 +36,7 @@ const demoUsers: User[] = [
     password: DEMO_PASSWORD_HASH,
     role: "RECYCLER",
     points: 0,
+    badgeAward: badgeAwardFromPoints(0),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -44,6 +47,7 @@ const demoUsers: User[] = [
     password: DEMO_PASSWORD_HASH,
     role: "ADMIN",
     points: 0,
+    badgeAward: badgeAwardFromPoints(0),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -62,6 +66,7 @@ function mapUser(doc: any): User {
     password: obj.password,
     role: obj.role,
     points: obj.points ?? 0,
+    badgeAward: obj.badgeAward || badgeAwardFromPoints(obj.points ?? 0),
     createdAt: obj.createdAt ? new Date(obj.createdAt).toISOString() : undefined,
     updatedAt: obj.updatedAt ? new Date(obj.updatedAt).toISOString() : undefined,
   };
@@ -139,6 +144,7 @@ export const UserStore = {
       password: data.password,
       role: data.role || "USER",
       points: 0,
+      badgeAward: badgeAwardFromPoints(0),
     };
 
     if (isDbConnected()) {
@@ -165,15 +171,31 @@ export const UserStore = {
 
   async update(
     id: string,
-    update: Partial<Pick<User, "name" | "role" | "points">>
+    update: Partial<Pick<User, "name" | "role" | "points" | "email" | "password" | "badgeAward">>
   ): Promise<PublicUser | null> {
     await seedDbUsers();
+    if (update.points !== undefined) {
+      update.badgeAward = badgeAwardFromPoints(update.points);
+    }
+    if (update.email) {
+      const taken = await UserStore.getByEmail(update.email);
+      if (taken && taken.id !== id && taken._id !== id) {
+        throw new Error("An account with this email already exists");
+      }
+    }
+
     if (isDbConnected()) {
       try {
-        const doc = await (UserModel as any).findByIdAndUpdate(id, update, { new: true });
+        const doc = await (UserModel as any).findByIdAndUpdate(id, update, {
+          new: true,
+          runValidators: true,
+        });
         if (doc) return toPublicUser(mapUser(doc));
-      } catch {
-        // Fall through to memory
+      } catch (err: any) {
+        if (err?.code === 11000) {
+          throw new Error("An account with this email already exists");
+        }
+        console.error("MongoDB update user failed, using memory store", err);
       }
     }
 
@@ -196,7 +218,14 @@ export const UserStore = {
           { $inc: { points: amount } },
           { new: true }
         );
-        if (doc) return toPublicUser(mapUser(doc));
+        if (doc) {
+          const nextBadge = badgeAwardFromPoints(doc.points ?? 0);
+          if (doc.badgeAward !== nextBadge) {
+            doc.badgeAward = nextBadge;
+            await doc.save();
+          }
+          return toPublicUser(mapUser(doc));
+        }
       } catch {
         // Fall through to memory
       }
@@ -205,6 +234,7 @@ export const UserStore = {
     const user = inMemoryUsers.find((u) => u.id === id || u._id === id);
     if (!user) return null;
     user.points += amount;
+    user.badgeAward = badgeAwardFromPoints(user.points);
     user.updatedAt = new Date().toISOString();
     return toPublicUser(user);
   },

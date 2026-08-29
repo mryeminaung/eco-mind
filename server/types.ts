@@ -149,6 +149,7 @@ export interface User {
   password: string;
   role: UserRole;
   points: number;
+  badgeAward: string;
   createdAt?: string;
   updatedAt?: string;
 }

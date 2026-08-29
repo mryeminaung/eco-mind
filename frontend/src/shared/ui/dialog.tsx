@@ -6,9 +6,10 @@ export interface DialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
+  className?: string;
 }
 
-export function Dialog({ open, onOpenChange, children }: DialogProps) {
+export function Dialog({ open, onOpenChange, children, className }: DialogProps) {
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onOpenChange(false);
@@ -33,7 +34,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
         className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs transition-opacity"
         onClick={() => onOpenChange(false)}
       />
-      <div className="relative z-50 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div className={cn("relative z-50 w-full max-w-lg rounded-3xl bg-white p-6 sm:p-7 shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto", className)}>
         <button
           onClick={() => onOpenChange(false)}
           className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"

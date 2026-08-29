@@ -1,7 +1,7 @@
+import "./config/env";
 import express, { Request, Response } from "express";
 import cors from "cors";
 import path from "path";
-import dotenv from "dotenv";
 import { connectDB, isDbConnected } from "./config/db";
 import pickupRoutes from "./routes/pickupRoutes";
 import serviceRoutes from "./routes/serviceRoutes";
@@ -15,22 +15,19 @@ import rewardRoutes from "./routes/rewardRoutes";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
-dotenv.config({ path: path.resolve(process.cwd(), "../.env") });
-
 async function startServer() {
   const app = express();
-  const PORT = 8000;
+  const PORT = Number(process.env.PORT) || 8000;
 
   // Global middlewares with body size support for image scans
   app.use(cors());
   app.use(express.json({ limit: "25mb" }));
   app.use(express.urlencoded({ limit: "25mb", extended: true }));
 
-  // Attempt database connection in the background
-  connectDB().catch((err) => {
-    console.error("Database connection initialization warning:", err);
-  });
+  const dbReady = await connectDB();
+  if (!dbReady) {
+    console.warn("⚠️ Users and other writes will stay in memory until MongoDB is reachable. Compass will not show them.");
+  }
 
   // API Routes
   app.get("/api/health", (_req: Request, res: Response) => {

@@ -6,6 +6,8 @@ Dev server: **http://localhost:3000**. Vite proxies `/api` to **http://localhost
 
 ## Setup
 
+Copy `frontend/.env.example` to `frontend/.env`. Leave `VITE_API_URL` empty locally so Vite proxies `/api` to the API. Server secrets live in `server/.env`, not here.
+
 Start the API from `../server` (or `npm run dev` at the repo root). Then:
 
 ```bash
@@ -17,7 +19,7 @@ npm run dev
 
 1. `/` landing
 2. `/login` or `/register`
-3. Role home: USER → `/dashboard`, RECYCLER → `/collector`, ADMIN → `/admin/users`
+3. Role home: USER → `/dashboard` (Green Rewards), RECYCLER → `/collector`, ADMIN → `/overview`
 
 Signed-out visits to protected pages return to the landing page first. The JWT is stored in `localStorage` as `rc_token` and sent on API calls as `Authorization: Bearer <token>`.
 
@@ -40,16 +42,17 @@ Password: `password123`
 | `/` | Public | Landing |
 | `/login` | Public | Login |
 | `/register` | Public | Register |
-| `/overview` | Public (in app shell) | Overview |
+| `/overview` | ADMIN | Platform overview |
 | `/centers` | Public | Recycling center finder |
 | `/services` | Public | Recycler directory |
 | `/hubs` | Public | Drop-off hubs |
-| `/community` | Public | Community impact |
+| `/community` | Public (join requires login) | Community impact |
 | `/scan` | USER, ADMIN | AI waste scanner |
 | `/request-pickup` | USER, ADMIN | Create collection request |
-| `/dashboard` | USER, ADMIN | Green Points |
+| `/dashboard` | USER | Green Rewards |
 | `/collector` | RECYCLER, ADMIN | Pickup queue |
 | `/admin/users` | ADMIN | Manage users |
+| `/settings` | USER, RECYCLER, ADMIN | Account settings |
 
 Admins can add, edit, and delete recycling centers on `/centers`.
 
@@ -78,17 +81,9 @@ Tailwind v4 in `src/index.css`. Fonts are Figtree and Padauk. Colors use the **l
 
 ```
 src/
-  landing/          Public landing page
-  auth/             Auth context, guards, login, register
+  features/         Domain features (auth, landing, scanner, centers, pickups, dashboard, collector, admin, settings, services, hubs, community)
   layout/           App shell and sidebar
-  scanner/          AI waste scanner
-  centers/          Recycling center finder
-  pickups/          Collection requests and overview
-  dashboard/        Green Points
-  collector/        Recycler pickup queue
-  admin/            User management
-  services/ hubs/ community/
   shared/           API client, UI, seed fallbacks
 ```
 
-Import alias: `@/` → `src/`.
+Import alias: `@/` → `src/`. Feature modules: `@/features/<name>/...`.

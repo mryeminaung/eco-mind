@@ -80,6 +80,34 @@ export const api = {
     return json.data;
   },
 
+  async updateProfile(data: {
+    name?: string;
+    email?: string;
+    currentPassword?: string;
+  }): Promise<{ user: AuthUser; token?: string }> {
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      method: "PATCH",
+      headers: headers(),
+      body: JSON.stringify(data),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || "Failed to update profile");
+    return json.data;
+  },
+
+  async changePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<void> {
+    const res = await fetch(`${API_BASE}/auth/password`, {
+      method: "PATCH",
+      headers: headers(),
+      body: JSON.stringify(data),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || "Failed to change password");
+  },
+
   async getUsers(): Promise<AuthUser[]> {
     const res = await fetch(`${API_BASE}/users`, { headers: headers() });
     const json = await res.json().catch(() => ({}));
@@ -273,6 +301,7 @@ export const api = {
   async joinEvent(id: string): Promise<CommunityEvent> {
     const res = await fetch(`${API_BASE}/community/events/${id}/join`, {
       method: "POST",
+      headers: headers(),
     });
     if (!res.ok) throw new Error("Failed to join event");
     const json = await res.json();

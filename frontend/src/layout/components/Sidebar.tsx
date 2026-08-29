@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Home,
   ScanLine,
@@ -9,14 +9,24 @@ import {
   BarChart3,
   Layers,
   Building2,
-  Users,
   Shield,
+  Settings,
   LogIn,
-  LogOut,
   X,
 } from "lucide-react";
 import { BrandLogo } from "@/shared/components/BrandLogo";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/features/auth/AuthContext";
+import { useLocale } from "@/i18n/LocaleContext";
+import { UserRole } from "@/types";
+
+type NavItem = {
+  labelKey: string;
+  path: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string | null;
+  exact?: boolean;
+  roles: Array<UserRole | "GUEST">;
+};
 
 interface SidebarProps {
   onCloseMobile?: () => void;
@@ -24,84 +34,42 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { t } = useLocale();
 
-  const citizenLinks = [
-    {
-      name: "Overview",
-      path: "/overview",
-      icon: Home,
-      exact: true,
-    },
-    {
-      name: "AI Waste Scanner",
-      path: "/scan",
-      icon: ScanLine,
-      badge: null,
-    },
-    {
-      name: "Recycling Centers",
-      path: "/centers",
-      icon: MapPin,
-      badge: null,
-    },
-    {
-      name: "My Collections",
-      path: "/request-pickup",
-      icon: Truck,
-      badge: "1",
-    },
-    {
-      name: "Green Rewards",
-      path: "/dashboard#rewards",
-      icon: Gift,
-      badge: null,
-    },
+  const viewer: UserRole | "GUEST" = user?.role ?? "GUEST";
+
+  const canSee = (roles: Array<UserRole | "GUEST">) => roles.includes(viewer);
+
+  const citizenLinks: NavItem[] = [
+    { labelKey: "nav.overview", path: "/dashboard", icon: Home, exact: true, roles: ["USER"] },
+    { labelKey: "nav.rewards", path: "/rewards", icon: Gift, exact: true, roles: ["USER"] },
+    { labelKey: "nav.scan", path: "/scan", icon: ScanLine, roles: ["USER"] },
+    { labelKey: "nav.centers", path: "/centers", icon: MapPin, roles: ["USER"] },
+    { labelKey: "nav.collections", path: "/request-pickup", icon: Truck, roles: ["USER"] },
   ];
 
-  const partnerLinks = [
-    {
-      name: "Recycler Dashboard",
-      path: "/collector",
-      icon: BarChart3,
-      badge: null,
-    },
-    {
-      name: "Recycling Services",
-      path: "/services",
-      icon: Layers,
-      badge: null,
-    },
-    {
-      name: "Drop-off Hubs",
-      path: "/hubs",
-      icon: Building2,
-      badge: null,
-    },
+  const partnerLinks: NavItem[] = [
+    { labelKey: "nav.collector", path: "/collector", icon: BarChart3, roles: ["RECYCLER"] },
+    { labelKey: "nav.centers", path: "/centers", icon: MapPin, roles: ["RECYCLER"] },
+    { labelKey: "nav.services", path: "/services", icon: Layers, roles: ["RECYCLER", "GUEST"] },
+    { labelKey: "nav.hubs", path: "/hubs", icon: Building2, roles: ["RECYCLER", "GUEST"] },
   ];
 
-  const adminLinks = [
-    {
-      name: "Manage Users",
-      path: "/admin/users",
-      icon: Shield,
-      badge: null,
-    },
+  const adminLinks: NavItem[] = [
+    { labelKey: "nav.overview", path: "/overview", icon: Home, exact: true, roles: ["ADMIN"] },
+    { labelKey: "nav.centers", path: "/centers", icon: MapPin, roles: ["ADMIN"] },
+    { labelKey: "nav.users", path: "/admin/users", icon: Shield, roles: ["ADMIN"] },
   ];
 
-  const communityLinks = [
-    {
-      name: "Community Impact",
-      path: "/community",
-      icon: Users,
-      badge: null,
-    },
+  const accountLinks: NavItem[] = [
+    { labelKey: "nav.settings", path: "/settings", icon: Settings, roles: ["USER", "RECYCLER", "ADMIN"] },
   ];
 
-  const showCitizen = !user || user.role === "USER" || user.role === "ADMIN";
-  const showPartner = !user || user.role === "RECYCLER" || user.role === "ADMIN";
-  const showAdmin = user?.role === "ADMIN";
+  const visibleCitizen = citizenLinks.filter((link) => canSee(link.roles));
+  const visiblePartner = partnerLinks.filter((link) => canSee(link.roles));
+  const visibleAdmin = adminLinks.filter((link) => canSee(link.roles));
+  const visibleAccount = accountLinks.filter((link) => canSee(link.roles));
 
   const isLinkActive = (path: string, exact?: boolean) => {
     if (exact) {
@@ -115,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   };
 
   const renderNavLink = (item: {
-    name: string;
+    labelKey: string;
     path: string;
     icon: React.ComponentType<{ className?: string }>;
     badge?: string | null;
@@ -126,33 +94,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
 
     return (
       <Link
-        key={item.name}
+        key={item.path}
         to={item.path}
         onClick={onCloseMobile}
-        className={`group relative flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-sm font-medium transition-all duration-200 ${
+        className={`group flex items-center justify-between px-2.5 py-2 rounded-2xl text-sm font-medium transition-all duration-200 ${
           active
-            ? "bg-lima-800 text-white shadow-inner font-semibold ring-1 ring-emerald-600/40"
-            : "text-emerald-100/80 hover:text-white hover:bg-white/[0.06]"
+            ? "bg-white/[0.12] text-white font-semibold"
+            : "text-emerald-100/80 hover:text-white hover:bg-white/[0.08]"
         }`}
       >
-        {/* Left active glowing indicator border */}
-        {active && (
-          <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-lima-400 rounded-r-full shadow-[0_0_8px_#85e437]" />
-        )}
-
-        <div className="flex items-center gap-3">
-          <Icon
-            className={`w-5 h-5 transition-colors ${
-              active
-                ? "text-lima-400"
-                : "text-emerald-300/70 group-hover:text-lima-400"
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+              active ? "bg-lima-400/20" : "bg-white/[0.06] group-hover:bg-white/10"
             }`}
-          />
-          <span className="truncate">{item.name}</span>
+          >
+            <Icon
+              className={`w-4 h-4 ${
+                active ? "text-lima-300" : "text-emerald-200/80 group-hover:text-lima-300"
+              }`}
+            />
+          </span>
+          <span className="truncate">{t(item.labelKey)}</span>
         </div>
 
         {item.badge && (
-          <span className="w-5 h-5 rounded-full bg-lima-400 text-lima-950 text-[11px] font-extrabold flex items-center justify-center shrink-0 shadow-xs">
+          <span
+            className={`w-5 h-5 rounded-full text-[11px] font-extrabold flex items-center justify-center shrink-0 ${
+              active ? "bg-lima-400/25 text-lima-200" : "bg-lima-400 text-lima-950"
+            }`}
+          >
             {item.badge}
           </span>
         )}
@@ -161,24 +132,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   };
 
   return (
-    <aside className="w-72 2xl:w-80 h-full flex flex-col justify-between bg-gradient-to-b from-lima-900 via-lima-950 to-lima-950 text-white p-5 select-none overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-900/50">
+    <aside className="w-64 h-full flex flex-col justify-between bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 text-white px-4 pb-5 select-none overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       <div className="space-y-6">
-        {/* Brand Header */}
-        <div className="flex items-center justify-between pt-1">
+        <div className="h-16 -mx-4 px-4 flex items-center justify-between border-b border-white/10">
           <Link
             to="/"
             onClick={onCloseMobile}
-            className="flex items-center group"
+            className="flex-1 min-w-0 flex items-center justify-center rounded-xl bg-white px-3 py-1.5"
           >
-            <BrandLogo size="lg" className="rounded-xl group-hover:scale-[1.02] transition-transform" />
+            <BrandLogo className="h-9 w-full max-w-none" />
           </Link>
 
-          {/* Close button on mobile */}
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
               className="lg:hidden p-1.5 rounded-xl text-emerald-300 hover:text-white hover:bg-white/10"
-              aria-label="Close sidebar"
+              aria-label={t("nav.closeSidebar")}
             >
               <X className="w-5 h-5" />
             </button>
@@ -187,105 +156,54 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
 
         {/* Navigation Sections */}
         <nav className="space-y-5 pt-2">
-          {showCitizen && (
+          {visibleCitizen.length > 0 && (
             <div className="space-y-1.5">
               <h2 className="text-[11px] font-extrabold text-emerald-400/70 uppercase tracking-[0.16em] px-3.5 pb-1">
-                CITIZEN SPACE
+                {t("nav.section.citizen")}
               </h2>
               <div className="space-y-1">
-                {citizenLinks.map((link) => renderNavLink(link))}
+                {visibleCitizen.map((link) => renderNavLink(link))}
               </div>
             </div>
           )}
 
-          {showPartner && (
+          {visiblePartner.length > 0 && (
             <div className="space-y-1.5">
               <h2 className="text-[11px] font-extrabold text-emerald-400/70 uppercase tracking-[0.16em] px-3.5 pb-1">
-                PARTNER SPACE
+                {t("nav.section.partner")}
               </h2>
               <div className="space-y-1">
-                {partnerLinks.map((link) => renderNavLink(link))}
+                {visiblePartner.map((link) => renderNavLink(link))}
               </div>
             </div>
           )}
 
-          {showAdmin && (
+          {visibleAdmin.length > 0 && (
             <div className="space-y-1.5">
               <h2 className="text-[11px] font-extrabold text-emerald-400/70 uppercase tracking-[0.16em] px-3.5 pb-1">
-                ADMIN
+                {t("nav.section.admin")}
               </h2>
               <div className="space-y-1">
-                {adminLinks.map((link) => renderNavLink(link))}
+                {visibleAdmin.map((link) => renderNavLink(link))}
               </div>
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <h2 className="text-[11px] font-extrabold text-emerald-400/70 uppercase tracking-[0.16em] px-3.5 pb-1">
-              COMMUNITY
-            </h2>
-            <div className="space-y-1">
-              {communityLinks.map((link) => renderNavLink(link))}
+          {visibleAccount.length > 0 && (
+            <div className="space-y-1.5">
+              <h2 className="text-[11px] font-extrabold text-emerald-400/70 uppercase tracking-[0.16em] px-3.5 pb-1">
+                {t("nav.section.account")}
+              </h2>
+              <div className="space-y-1">
+                {visibleAccount.map((link) => renderNavLink(link))}
+              </div>
             </div>
-          </div>
+          )}
         </nav>
       </div>
 
-      {/* Bottom Section */}
-      <div className="space-y-4 pt-6 mt-4 border-t border-emerald-900/40">
-        {/* Monthly green goal widget */}
-        <div className="bg-lima-800/90 border border-emerald-700/30 rounded-2xl p-4 shadow-sm space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-emerald-200/90 font-medium">
-              Monthly green goal
-            </span>
-            <span className="text-xl font-black text-lima-400 tracking-tight">
-              68%
-            </span>
-          </div>
-
-          {/* Progress Bar with Lime fill */}
-          <div className="w-full bg-lima-950 h-2 rounded-full overflow-hidden p-0.5 border border-emerald-900/40">
-            <div
-              className="bg-lima-400 h-full rounded-full transition-all duration-500 shadow-[0_0_8px_#85e437]"
-              style={{ width: "68%" }}
-            />
-          </div>
-        </div>
-
-        {user ? (
-          <div className="space-y-2">
-            <Link
-              to={user.role === "RECYCLER" ? "/collector" : user.role === "ADMIN" ? "/admin/users" : "/dashboard"}
-              onClick={onCloseMobile}
-              className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-white/[0.06] transition-colors group cursor-pointer"
-            >
-              <div className="w-10 h-10 rounded-full bg-lima-200 text-lima-950 font-black text-sm flex items-center justify-center shrink-0 shadow-sm ring-2 ring-emerald-500/30 group-hover:ring-lima-400 transition-all">
-                {user.name.slice(0, 2).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-bold text-white text-sm leading-tight truncate group-hover:text-lima-400 transition-colors">
-                  {user.name}
-                </p>
-                <p className="text-[11px] text-emerald-300/70 truncate">
-                  {user.role} • {user.points} pts
-                </p>
-              </div>
-            </Link>
-            <button
-              type="button"
-              onClick={() => {
-                logout();
-                onCloseMobile?.();
-                navigate("/");
-              }}
-              className="w-full flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm text-emerald-100/80 hover:text-white hover:bg-white/[0.06]"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
-            </button>
-          </div>
-        ) : (
+      {!user && (
+        <div className="pt-6 mt-4 border-t border-emerald-900/40">
           <Link
             to="/"
             onClick={onCloseMobile}
@@ -295,12 +213,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
               <LogIn className="w-4 h-4" />
             </div>
             <div>
-              <p className="font-bold text-white text-sm">Get started</p>
-              <p className="text-[11px] text-emerald-300/70">Landing page first</p>
+              <p className="font-bold text-white text-sm">{t("nav.getStarted")}</p>
+              <p className="text-[11px] text-emerald-300/70">{t("nav.landingFirst")}</p>
             </div>
           </Link>
-        )}
-      </div>
+        </div>
+      )}
     </aside>
   );
 };
