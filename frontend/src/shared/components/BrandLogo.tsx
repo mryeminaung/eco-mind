@@ -15,7 +15,7 @@ const SIZE_CLASS = {
 export const BrandLogo: React.FC<BrandLogoProps> = ({ className, size = "md" }) => {
   return (
     <img
-      src="/ecomind-logo.png"
+      src="/eco-mind.png"
       alt="EcoMind"
       className={cn("w-auto object-contain object-left", SIZE_CLASS[size], className)}
     />
