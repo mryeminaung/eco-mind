@@ -1,0 +1,47 @@
+@import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Padauk:wght@400;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Figtree", "Padauk", sans-serif;
+
+  --color-lima-50: #f3fee7;
+  --color-lima-100: #e4fbcc;
+  --color-lima-200: #c9f89e;
+  --color-lima-300: #a6f066;
+  --color-lima-400: #85e437;
+  --color-lima-500: #5bb516;
+  --color-lima-600: #4ca10f;
+  --color-lima-700: #3b7b10;
+  --color-lima-800: #326113;
+  --color-lima-900: #2c5215;
+  --color-lima-950: #132d06;
+
+  --color-emerald-50: #f3fee7;
+  --color-emerald-100: #e4fbcc;
+  --color-emerald-200: #c9f89e;
+  --color-emerald-300: #a6f066;
+  --color-emerald-400: #85e437;
+  --color-emerald-500: #5bb516;
+  --color-emerald-600: #4ca10f;
+  --color-emerald-700: #3b7b10;
+  --color-emerald-800: #326113;
+  --color-emerald-900: #2c5215;
+  --color-emerald-950: #132d06;
+
+  --color-lime-50: #f3fee7;
+  --color-lime-100: #e4fbcc;
+  --color-lime-200: #c9f89e;
+  --color-lime-300: #a6f066;
+  --color-lime-400: #85e437;
+  --color-lime-500: #5bb516;
+}
+
+html,
+body,
+#root {
+  font-family: var(--font-sans);
+}
+
+body {
+  @apply bg-lima-50 text-slate-900 antialiased;
+}

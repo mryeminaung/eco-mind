@@ -1,0 +1,6 @@
+{
+  "name": "RecycleConnect Myanmar",
+  "description": "A clean community recycling platform connecting Myanmar citizens with local recycling collectors, drop-off hubs, and eco-rewards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
