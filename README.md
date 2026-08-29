@@ -2,23 +2,64 @@
 
 Community recycling platform for Myanmar. Citizens scan recyclable items, find centers, and request doorstep collection. Recyclers accept or reject pickups and update status. Admins manage centers and users.
 
-## Features
+## Features per role
+
+Self-register as **USER** or **RECYCLER**. Admin accounts are seeded or assigned by an existing admin.
+
+### Anyone (no login)
+
+- View the landing page and platform overview
+- Browse recycling centers, services, and drop-off hubs
+- View community events and join a volunteer drive
+- See public impact stats and material buyback rates
+- Register or log in
+
+### USER (Citizen)
+
+Home after login: `/dashboard`
+
+- Scan a waste photo with the AI scanner
+- See material type, recyclability, prep steps, and estimated MMK value
+- Browse recycling centers, services, and drop-off hubs
+- Create a doorstep collection request
+- Track own requests: `PENDING` → `ACCEPTED` → `COLLECTED` → `COMPLETED` (or `REJECTED`)
+- Preview Green Points before submitting a request
+- Earn Green Points when a recycler marks a request completed
+- View points, impact, badges, and points history on the citizen dashboard
+- Join community cleanup events
+
+### RECYCLER (Collector)
+
+Home after login: `/collector`
+
+- View the full collection request queue
+- Filter and search requests by status, material, or address
+- Accept a pending request
+- Reject a pending request
+- Mark an accepted request as collected
+- Complete a collected request and log the waste
+- Award Green Points to the citizen on completion
+- Browse recycling services and drop-off hubs
+
+### ADMIN
+
+Home after login: `/admin/users`
+
+- Use every USER feature (scanner, requests, dashboard, points)
+- Use every RECYCLER feature (request queue and status updates)
+- List all user accounts
+- Change a user's role (`USER`, `RECYCLER`, or `ADMIN`)
+- Delete a user (not yourself)
+- Add, edit, or delete recycling centers
+
+## Platform
 
 - JWT authentication with hashed passwords
 - Role-based access: **USER**, **RECYCLER**, **ADMIN**
-- AI waste scanner (OpenRouter when `OPENROUTER_API_KEY` is set, mock fallback otherwise)
-- Recycling center finder
+- AI waste scanner (OpenRouter when `OPENROUTER_API_KEY` is set, Gemini or mock fallback otherwise)
 - Collection requests: `PENDING` → `ACCEPTED` → `COLLECTED` → `COMPLETED` (or `REJECTED`)
-- Green Points awarded when a request is completed
+- Green Points rates: Plastic 10, Paper 5, Glass 8, Metal 15 per kg
 - MongoDB when `MONGODB_URI` is set, in-memory store otherwise
-
-## Roles
-
-| Role | Can do |
-| --- | --- |
-| USER | Scan items, view centers, create collection requests, earn points |
-| RECYCLER | View pickup requests, accept or reject, update collection status |
-| ADMIN | Manage recycling centers and user accounts |
 
 ## Stack
 
@@ -66,11 +107,11 @@ The app opens on the landing page. Use **Register** or **Login** from there.
 
 Password for all three: `password123`
 
-| Role | Email |
-| --- | --- |
-| USER | `citizen@ecomind.mm` |
-| RECYCLER | `recycler@ecomind.mm` |
-| ADMIN | `admin@ecomind.mm` |
+| Role | Email | Opens |
+| --- | --- | --- |
+| USER | `citizen@ecomind.mm` | `/dashboard` |
+| RECYCLER | `recycler@ecomind.mm` | `/collector` |
+| ADMIN | `admin@ecomind.mm` | `/admin/users` |
 
 ## Scripts
 
