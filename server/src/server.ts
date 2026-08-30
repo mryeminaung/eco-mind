@@ -1,7 +1,6 @@
 import "./config/env";
 import express, { Request, Response } from "express";
 import cors from "cors";
-import path from "path";
 import { connectDB, isDbConnected } from "./config/db";
 import pickupRoutes from "./routes/pickupRoutes";
 import serviceRoutes from "./routes/serviceRoutes";
@@ -55,15 +54,6 @@ async function startServer() {
   app.use("/api/hubs", hubRoutes);
   app.use("/api/stats", statsRoutes);
   app.use("/api/community", communityRoutes);
-
-  // Production: serve frontend build
-  if (process.env.NODE_ENV === "production") {
-    const distPath = path.join(process.cwd(), "../frontend/dist");
-    app.use(express.static(distPath));
-    app.get("*", (_req: Request, res: Response) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🌿 EcoMind Myanmar API running at http://0.0.0.0:${PORT}`);
