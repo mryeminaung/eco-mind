@@ -21,6 +21,7 @@ import { ManageUsersPage } from "@/features/admin/pages/ManageUsersPage";
 import { LandingPage } from "@/features/landing/LandingPage";
 import { SettingsPage } from "@/features/settings/pages/SettingsPage";
 import { DocumentMeta } from "@/shared/seo/DocumentMeta";
+import { BackToTopButton } from "@/shared/components/BackToTopButton";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
         <DocumentMeta />
+        <BackToTopButton />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/community" element={<CommunityImpactPage />} />
