@@ -148,30 +148,12 @@ export const api = {
       });
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || "Failed to analyze image");
+        throw Object.assign(new Error("Scan failed"), { code: errJson.code || (res.status === 401 ? "SCAN_LOGIN" : "SCAN_UNAVAILABLE") });
       }
       const json = await res.json();
       return { data: json.data, source: json.source };
     } catch (err: any) {
-      console.warn("Using local fallback scan result:", err);
-      // Return realistic local fallback if server unreachable
-      return {
-        data: {
-          material: "Plastic Bottle",
-          recyclable: true,
-          category: "PET Plastic",
-          instructions: [
-            "Clean the bottle",
-            "Remove cap",
-            "Send to recycling center",
-          ],
-          environmentalImpact: "Reduces plastic pollution and saves ~0.15kg CO2",
-          confidenceScore: 0.95,
-          estimatedMyanmarValue: "350 - 450 MMK/kg",
-          recommendedAction: "pickup",
-        },
-        source: "Client Fallback Scanner",
-      };
+      throw Object.assign(new Error("Scan failed"), { code: err?.code || "SCAN_CONNECTION" });
     }
   },
 

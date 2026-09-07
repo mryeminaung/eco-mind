@@ -127,7 +127,17 @@ export interface RecyclingCenter {
   updatedAt?: string;
 }
 
+export interface ScanText {
+  material: string;
+  category: string;
+  instructions: string[];
+  environmentalImpact: string;
+  itemDescription?: string;
+}
+
 export interface ScanResult {
+  my?: ScanText;
+  diySafe?: boolean;
   material: string;
   recyclable: boolean;
   category: string;

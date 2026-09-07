@@ -9,15 +9,15 @@ import {
   Leaf,
   RotateCcw,
   Coins,
-  ShieldCheck,
+  ExternalLink,
   HelpCircle,
 } from "lucide-react";
 import { ScanResult } from "@/types";
-import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { useLocale } from "@/i18n/LocaleContext";
 
 interface ScanResultCardProps {
+  isSample?: boolean;
   result: ScanResult;
   source?: string;
   onScanAnother: () => void;
@@ -25,16 +25,21 @@ interface ScanResultCardProps {
 }
 
 export const ScanResultCard: React.FC<ScanResultCardProps> = ({
+  isSample = false,
   result,
   source,
   onScanAnother,
   scannedImage,
 }) => {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const display = locale === "my" && result.my ? result.my : result;
   const isRecyclable = result.recyclable;
+  const diyQuery = encodeURIComponent(`${result.material} upcycling DIY tutorial`);
+  const showDiy = result.diySafe === true && !/batter|electronic|e-waste|chemical|medical|sharp|broken|aerosol|pressuri[sz]ed|contaminat/i.test(`${result.material} ${result.category} ${result.itemDescription || ""}`);
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white overflow-hidden">
+      {isSample && <p role="status" className="bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-900">{t("scan.sample.label")}</p>}
       <div
         className={`px-5 py-4 flex items-center justify-between gap-3 ${
           isRecyclable
@@ -47,44 +52,35 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
             {isRecyclable ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5 text-rose-200" />}
           </span>
           <div className="min-w-0">
-            <p className="font-extrabold leading-tight truncate">
+            <p className="font-extrabold leading-tight">
               {isRecyclable ? t("scan.result.yes") : t("scan.result.no")}
             </p>
             <p className="text-xs text-white/70">{t("scan.result.network")}</p>
           </div>
         </div>
-        <Badge
-          variant={isRecyclable ? "success" : "destructive"}
-          className="shrink-0 text-xs"
-        >
-          {isRecyclable ? t("scan.result.take") : t("scan.result.waste")}
-        </Badge>
+
       </div>
 
       <div className="p-5 sm:p-6 space-y-5">
+        {locale === "my" && !result.my && <p className="text-sm text-amber-800">{t("scan.translation.missing")}</p>}
         <div className="flex gap-4 items-start">
           {scannedImage && (
             <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-              <img src={scannedImage} alt={result.material} className="w-full h-full object-cover" />
+              <img src={scannedImage} alt={display.material} className="w-full h-full object-cover" />
             </div>
           )}
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
-                {result.category}
+                {display.category}
               </span>
-              {result.confidenceScore && (
-                <span className="text-[11px] text-emerald-700 font-semibold inline-flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  {Math.round(result.confidenceScore * 100)}%
-                </span>
-              )}
+
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              {result.material}
+              {display.material}
             </h2>
-            {result.itemDescription && (
-              <p className="text-sm text-slate-600 leading-relaxed">{result.itemDescription}</p>
+            {display.itemDescription && (
+              <p className="text-sm text-slate-600 leading-relaxed">{display.itemDescription}</p>
             )}
           </div>
         </div>
@@ -96,7 +92,7 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
               {t("scan.result.buyback")}
             </p>
             <p className="text-sm font-extrabold text-slate-900 mt-1">
-              {result.estimatedMyanmarValue || "250 – 450 MMK/kg"}
+              {t("scan.result.noRate")}
             </p>
           </div>
           <div className="rounded-2xl bg-lima-50 border border-lima-100 p-3.5">
@@ -105,16 +101,16 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
               {t("scan.result.impact")}
             </p>
             <p className="text-sm font-semibold text-slate-800 mt-1 leading-snug">
-              {result.environmentalImpact}
+              {display.environmentalImpact}
             </p>
           </div>
         </div>
 
-        {result.instructions?.length > 0 && (
+        {display.instructions?.length > 0 && (
           <div className="space-y-2.5">
             <h3 className="text-sm font-bold text-slate-900">{t("scan.result.prep")}</h3>
             <ol className="space-y-2">
-              {result.instructions.map((step, idx) => (
+              {display.instructions.map((step, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-sm text-slate-700">
                   <span className="w-6 h-6 rounded-full bg-emerald-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
                     {idx + 1}
@@ -126,6 +122,25 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
           </div>
         )}
 
+        <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4 space-y-3">
+          <h3 className="text-sm font-bold text-slate-900">{t("scan.diy.title")}</h3>
+          <p className="text-sm text-slate-600">{t(showDiy ? "scan.diy.description" : "scan.diy.unavailable")}</p>
+          {showDiy && (
+            <div className="flex flex-wrap gap-2">
+              {[
+                { name: "YouTube", href: `https://www.youtube.com/results?search_query=${diyQuery}` },
+                { name: "TikTok", href: `https://www.tiktok.com/search?q=${diyQuery}` },
+              ].map(({ name, href }) => (
+                <a key={name} href={href} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-teal-200 bg-white px-4 py-2 text-sm font-semibold text-teal-900 hover:bg-teal-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-700"
+                  aria-label={`${t("scan.diy.search")} ${name} (${t("scan.diy.newTab")})`}>
+                  {t("scan.diy.search")} {name}<ExternalLink className="h-4 w-4" aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+
         {source && (
           <p className="text-[11px] text-slate-400 flex items-center gap-1 pt-1 border-t border-slate-100">
             <Sparkles className="w-3 h-3 text-emerald-500" />
@@ -134,12 +149,12 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
         )}
       </div>
 
-      <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
+      <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2">
         <Button variant="outline" size="sm" className="gap-2" onClick={onScanAnother}>
           <RotateCcw className="w-3.5 h-3.5" />
           {t("scan.result.another")}
         </Button>
-        <div className="flex-1 flex flex-col sm:flex-row gap-2 sm:justify-end">
+        <div className="flex-1 flex flex-wrap gap-2 sm:justify-end">
           {isRecyclable ? (
             <>
               <Link to="/centers" className="flex-1 sm:flex-initial">

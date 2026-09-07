@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import { SAMPLE_ITEMS, getSampleResult } from "@/features/scanner/samples";
+import { useAuth } from "@/features/auth/AuthContext";
+import { loadHistory, saveHistory, makeThumbnail, type SavedScan } from "@/features/scanner/history";
+import React, { useEffect, useState } from "react";
 import {
   Sparkles,
   Recycle,
@@ -20,7 +23,10 @@ import { PageSectionHeader } from "@/shared/components/PageSectionHeader";
 import { useLocale } from "@/i18n/LocaleContext";
 
 export const AiScannerPage: React.FC = () => {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const { user } = useAuth();
+  const historyKey = `ecomind-scans-v1:${user?.id || user?._id || "anonymous"}`;
+  const [storageFailed, setStorageFailed] = useState(false);
   const categories = [
     { name: t("scan.cat.plastic"), hint: t("scan.cat.plasticHint"), icon: Recycle },
     { name: t("scan.cat.paper"), hint: t("scan.cat.paperHint"), icon: Package },
@@ -28,17 +34,27 @@ export const AiScannerPage: React.FC = () => {
     { name: t("scan.cat.metal"), hint: t("scan.cat.metalHint"), icon: Cylinder },
     { name: t("scan.cat.ewaste"), hint: t("scan.cat.ewasteHint"), icon: Cpu },
   ];
+  const [sampleId, setSampleId] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
   const [isLoading, setIsLoading] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [apiSource, setApiSource] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
-  const [scanHistory, setScanHistory] = useState<
-    Array<{ id: string; result: ScanResult; timestamp: string; image: string }>
-  >([]);
+  const [scanHistory, setScanHistory] = useState<SavedScan[]>([]);
+  useEffect(() => {
+    const saved = loadHistory(historyKey);
+    setScanHistory(saved);
+    setSelectedImage(saved[0]?.image || null);
+    setScanResult(saved[0]?.result || null);
+    setApiSource(saved[0]?.source);
+    setSampleId(null);
+    setError(null);
+    setStorageFailed(false);
+  }, [historyKey]);
 
   const handleImageSelected = async (base64: string, mimeType: string) => {
+    setSampleId(null);
     setSelectedImage(base64);
     setImageMimeType(mimeType);
     setError(null);
@@ -47,6 +63,7 @@ export const AiScannerPage: React.FC = () => {
   };
 
   const triggerScan = async (base64Data?: string, mime?: string) => {
+    if (sampleId && !base64Data) return;
     const imgToScan = base64Data || selectedImage;
     const typeToScan = mime || imageMimeType;
 
@@ -62,24 +79,33 @@ export const AiScannerPage: React.FC = () => {
       const response = await api.scanWaste(imgToScan, typeToScan);
       setScanResult(response.data);
       setApiSource(response.source);
-      setScanHistory((prev) => [
-        {
-          id: `scan-${Date.now()}`,
-          result: response.data,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          image: imgToScan,
-        },
-        ...prev.slice(0, 7),
-      ]);
+      const entry: SavedScan = {
+        id: crypto.randomUUID(),
+        result: response.data,
+        source: response.source,
+        timestamp: new Date().toLocaleString(),
+        image: await makeThumbnail(imgToScan),
+      };
+      const next = [entry, ...scanHistory].slice(0, 8);
+      setScanHistory(next);
+      setStorageFailed(!saveHistory(historyKey, next));
     } catch (err: any) {
       console.error("Scan error:", err);
-      setError(err?.message || t("scan.failed"));
+      const messages: Record<string, string> = {
+        SCAN_IMAGE_UNCLEAR: "scan.error.unclear",
+        SCAN_IMAGE_INVALID: "scan.invalidFile",
+        SCAN_LOGIN: "scan.error.login",
+        SCAN_CONNECTION: "scan.error.connection",
+      };
+      setError(t(messages[err?.code] || "scan.error.unavailable"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleClear = () => {
+    setSampleId(null);
+    setApiSource(undefined);
     setSelectedImage(null);
     setScanResult(null);
     setError(null);
@@ -115,14 +141,36 @@ export const AiScannerPage: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-6 space-y-3">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-6 items-start">
+        <div className="xl:col-span-5 min-w-0 space-y-5">
           <ImageUpload
             onImageSelected={handleImageSelected}
             isLoading={isLoading}
             selectedImage={selectedImage}
             onClear={handleClear}
           />
+
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-slate-800">{t("scan.trySample")}</p>
+            <p className="text-xs text-slate-500">{t("scan.sample.help")}</p>
+            <div className="grid grid-cols-5 gap-2">
+              {SAMPLE_ITEMS.map(sample => (
+                <button key={sample.id} type="button" disabled={isLoading}
+                  aria-pressed={sampleId === sample.id}
+                  onClick={() => {
+                    setSampleId(sample.id);
+                    setSelectedImage(sample.dataUri);
+                    setScanResult(getSampleResult(sample));
+                    setApiSource(undefined);
+                    setError(null);
+                  }}
+                  className={`rounded-2xl border p-2 text-center transition-colors disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-600 ${sampleId === sample.id ? "border-emerald-500 bg-lima-50" : "border-slate-200 bg-white hover:bg-lima-50"}`}>
+                  <span aria-hidden="true" className="block text-xl">{sample.icon}</span>
+                  <span className="block text-xs font-semibold">{t(`scan.cat.${({ plastic: "plastic", cardboard: "paper", can: "metal", glass: "glass", ewaste: "ewaste" } as Record<string, string>)[sample.id]}`)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {selectedImage && !isLoading && !scanResult && !error && (
             <Button variant="eco" className="w-full gap-2 font-bold" onClick={() => triggerScan()}>
@@ -144,13 +192,63 @@ export const AiScannerPage: React.FC = () => {
               </Button>
             </div>
           )}
+      {storageFailed && <p role="status" className="text-sm text-amber-800">{t("scan.history.unsaved")}</p>}
+      {scanHistory.length > 0 && (
+        <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+              <History className="w-4 h-4 text-emerald-600" />
+              {t("scan.session")}
+            </h2>
+            <Button variant="outline" size="sm" disabled={isLoading} onClick={() => {
+              if (saveHistory(historyKey, [])) {
+                setScanHistory([]);
+                setStorageFailed(false);
+                handleClear();
+              } else setStorageFailed(true);
+            }}>{t("scan.history.clear")}</Button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 gap-3">
+            {scanHistory.map((item) => (
+              <button
+                key={item.id}
+                disabled={isLoading}
+                type="button"
+                onClick={() => {
+                  setSampleId(null);
+                  setApiSource(item.source);
+                  setSelectedImage(item.image);
+                  setScanResult(item.result);
+                  setError(null);
+                }}
+                className="min-w-0 w-full text-left rounded-2xl border border-slate-200 bg-white p-2 hover:border-emerald-400 transition-colors"
+              >
+                <div className="h-20 rounded-xl overflow-hidden bg-slate-100 mb-2">
+                  {item.image && <img src={item.image} alt={locale === "my" ? item.result.my?.material || item.result.material : item.result.material} className="w-full h-full object-cover" />}
+                </div>
+                <p className="text-xs font-bold text-slate-900 truncate">{locale === "my" ? item.result.my?.material || item.result.material : item.result.material}</p>
+                <div className="flex items-center justify-between gap-1 mt-0.5">
+                  <span className="text-[11px] text-slate-500 truncate">{item.timestamp}</span>
+                  <Badge
+                    variant={item.result.recyclable ? "success" : "destructive"}
+                    className="text-[10px] px-1.5 py-0"
+                  >
+                    {item.result.recyclable ? t("common.yes") : t("common.no")}
+                  </Badge>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
         </div>
 
-        <div className="lg:col-span-6 space-y-6">
+        <div className="xl:col-span-7 min-w-0 space-y-6">
           {isLoading ? (
             <ScannerLoadingState previewImage={selectedImage} />
           ) : scanResult ? (
             <ScanResultCard
+              isSample={sampleId !== null}
               result={scanResult}
               source={apiSource}
               onScanAnother={handleClear}
@@ -184,45 +282,7 @@ export const AiScannerPage: React.FC = () => {
         </div>
       </div>
 
-      {scanHistory.length > 0 && (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-              <History className="w-4 h-4 text-emerald-600" />
-              {t("scan.session")}
-            </h2>
-            <span className="text-xs text-slate-500">{t("scan.sessionCount", { count: scanHistory.length })}</span>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {scanHistory.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setSelectedImage(item.image);
-                  setScanResult(item.result);
-                  setError(null);
-                }}
-                className="shrink-0 w-36 text-left rounded-2xl border border-slate-200 bg-white p-2 hover:border-emerald-400 transition-colors"
-              >
-                <div className="h-20 rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  <img src={item.image} alt={item.result.material} className="w-full h-full object-cover" />
-                </div>
-                <p className="text-xs font-bold text-slate-900 truncate">{item.result.material}</p>
-                <div className="flex items-center justify-between gap-1 mt-0.5">
-                  <span className="text-[11px] text-slate-500 truncate">{item.timestamp}</span>
-                  <Badge
-                    variant={item.result.recyclable ? "success" : "destructive"}
-                    className="text-[10px] px-1.5 py-0"
-                  >
-                    {item.result.recyclable ? t("common.yes") : t("common.no")}
-                  </Badge>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
+
     </div>
   );
 };
