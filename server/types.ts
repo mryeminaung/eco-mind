@@ -128,6 +128,7 @@ export interface RecyclingCenter {
 }
 
 export interface ScanResult {
+  diySafe?: boolean;
   material: string;
   recyclable: boolean;
   category: string;
