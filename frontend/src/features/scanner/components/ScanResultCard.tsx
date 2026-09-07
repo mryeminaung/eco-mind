@@ -51,7 +51,7 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
             {isRecyclable ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5 text-rose-200" />}
           </span>
           <div className="min-w-0">
-            <p className="font-extrabold leading-tight truncate">
+            <p className="font-extrabold leading-tight">
               {isRecyclable ? t("scan.result.yes") : t("scan.result.no")}
             </p>
             <p className="text-xs text-white/70">{t("scan.result.network")}</p>
@@ -124,7 +124,7 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
           <h3 className="text-sm font-bold text-slate-900">{t("scan.diy.title")}</h3>
           <p className="text-sm text-slate-600">{t(showDiy ? "scan.diy.description" : "scan.diy.unavailable")}</p>
           {showDiy && (
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-wrap gap-2">
               {[
                 { name: "YouTube", href: `https://www.youtube.com/results?search_query=${diyQuery}` },
                 { name: "TikTok", href: `https://www.tiktok.com/search?q=${diyQuery}` },
@@ -147,12 +147,12 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
         )}
       </div>
 
-      <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
+      <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2">
         <Button variant="outline" size="sm" className="gap-2" onClick={onScanAnother}>
           <RotateCcw className="w-3.5 h-3.5" />
           {t("scan.result.another")}
         </Button>
-        <div className="flex-1 flex flex-col sm:flex-row gap-2 sm:justify-end">
+        <div className="flex-1 flex flex-wrap gap-2 sm:justify-end">
           {isRecyclable ? (
             <>
               <Link to="/centers" className="flex-1 sm:flex-initial">

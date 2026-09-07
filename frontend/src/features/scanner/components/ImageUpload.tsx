@@ -144,7 +144,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           </div>
         </div>
       ) : (
-        <div className="relative min-h-[22rem] rounded-3xl overflow-hidden bg-slate-950 border border-slate-800">
+        <div className="relative aspect-[4/3] min-h-[18rem] rounded-3xl overflow-hidden bg-slate-950 border border-slate-800">
           <img
             src={selectedImage}
             alt="Waste item preview"

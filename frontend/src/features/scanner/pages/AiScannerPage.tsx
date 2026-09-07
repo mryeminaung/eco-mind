@@ -141,8 +141,8 @@ export const AiScannerPage: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-6 space-y-3">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-6 items-start">
+        <div className="xl:col-span-5 min-w-0 space-y-5">
           <ImageUpload
             onImageSelected={handleImageSelected}
             isLoading={isLoading}
@@ -192,10 +192,58 @@ export const AiScannerPage: React.FC = () => {
               </Button>
             </div>
           )}
-
+      {storageFailed && <p role="status" className="text-sm text-amber-800">{t("scan.history.unsaved")}</p>}
+      {scanHistory.length > 0 && (
+        <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+              <History className="w-4 h-4 text-emerald-600" />
+              {t("scan.session")}
+            </h2>
+            <Button variant="outline" size="sm" disabled={isLoading} onClick={() => {
+              if (saveHistory(historyKey, [])) {
+                setScanHistory([]);
+                setStorageFailed(false);
+                handleClear();
+              } else setStorageFailed(true);
+            }}>{t("scan.history.clear")}</Button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-2 gap-3">
+            {scanHistory.map((item) => (
+              <button
+                key={item.id}
+                disabled={isLoading}
+                type="button"
+                onClick={() => {
+                  setSampleId(null);
+                  setApiSource(item.source);
+                  setSelectedImage(item.image);
+                  setScanResult(item.result);
+                  setError(null);
+                }}
+                className="min-w-0 w-full text-left rounded-2xl border border-slate-200 bg-white p-2 hover:border-emerald-400 transition-colors"
+              >
+                <div className="h-20 rounded-xl overflow-hidden bg-slate-100 mb-2">
+                  {item.image && <img src={item.image} alt={item.result.material} className="w-full h-full object-cover" />}
+                </div>
+                <p className="text-xs font-bold text-slate-900 truncate">{item.result.material}</p>
+                <div className="flex items-center justify-between gap-1 mt-0.5">
+                  <span className="text-[11px] text-slate-500 truncate">{item.timestamp}</span>
+                  <Badge
+                    variant={item.result.recyclable ? "success" : "destructive"}
+                    className="text-[10px] px-1.5 py-0"
+                  >
+                    {item.result.recyclable ? t("common.yes") : t("common.no")}
+                  </Badge>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
         </div>
 
-        <div className="lg:col-span-6 space-y-6">
+        <div className="xl:col-span-7 min-w-0 space-y-6">
           {isLoading ? (
             <ScannerLoadingState previewImage={selectedImage} />
           ) : scanResult ? (
@@ -235,55 +283,6 @@ export const AiScannerPage: React.FC = () => {
       </div>
 
 
-      {storageFailed && <p role="status" className="text-sm text-amber-800">{t("scan.history.unsaved")}</p>}
-      {scanHistory.length > 0 && (
-        <section className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-              <History className="w-4 h-4 text-emerald-600" />
-              {t("scan.session")}
-            </h2>
-            <Button variant="outline" size="sm" disabled={isLoading} onClick={() => {
-              if (saveHistory(historyKey, [])) {
-                setScanHistory([]);
-                setStorageFailed(false);
-                handleClear();
-              } else setStorageFailed(true);
-            }}>{t("scan.history.clear")}</Button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1">
-            {scanHistory.map((item) => (
-              <button
-                key={item.id}
-                disabled={isLoading}
-                type="button"
-                onClick={() => {
-                  setSampleId(null);
-                  setApiSource(item.source);
-                  setSelectedImage(item.image);
-                  setScanResult(item.result);
-                  setError(null);
-                }}
-                className="shrink-0 w-36 text-left rounded-2xl border border-slate-200 bg-white p-2 hover:border-emerald-400 transition-colors"
-              >
-                <div className="h-20 rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  {item.image && <img src={item.image} alt={item.result.material} className="w-full h-full object-cover" />}
-                </div>
-                <p className="text-xs font-bold text-slate-900 truncate">{item.result.material}</p>
-                <div className="flex items-center justify-between gap-1 mt-0.5">
-                  <span className="text-[11px] text-slate-500 truncate">{item.timestamp}</span>
-                  <Badge
-                    variant={item.result.recyclable ? "success" : "destructive"}
-                    className="text-[10px] px-1.5 py-0"
-                  >
-                    {item.result.recyclable ? t("common.yes") : t("common.no")}
-                  </Badge>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 };

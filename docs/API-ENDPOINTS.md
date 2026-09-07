@@ -118,7 +118,9 @@ If `status` is `ACCEPTED` and `recyclerId` is omitted, the current user id is us
 
 Body: `{ "image": "<base64 or data URI>", "mimeType": "image/jpeg" }`.
 
-Response includes `data` (material, recyclable, instructions, MMK estimate, impact) and `source` (`OpenRouter`, `Gemini`, or mock). Body limit is 25 MB.
+Response includes `data` (material, category, recyclable, instructions, environmentalImpact, itemDescription, diySafe) and `source` (OpenRouter model or Gemini). Body limit is 25 MB. Recyclability is general guidance, not confirmed local collector acceptance. Prices and confidence percentages are not generated.
+
+Missing AI configuration, provider failures, and unclear or incomplete analyses return an error; neither server nor client substitutes demo results. The interface offers a retry. For clearly identified suitable craft materials (`diySafe: true`), the result card links to material-based YouTube and TikTok searches in a new tab. These are unreviewed search results, not curated tutorials. Hazardous items do not receive DIY links.
 
 ## Rewards
 
@@ -180,3 +182,5 @@ Create requires `citizenName`, `citizenPhone`, `city`, `township`, `address`, `i
 ## Frontend mapping
 
 The React client lives in `frontend/src/shared/api.ts`. It prefixes paths with `VITE_API_URL` + `/api`, or `/api` when empty (Vite proxies to port 8000). JWT is stored as `rc_token` in `localStorage`.
+
+Scanner samples are predefined client-side examples labeled "Sample result ? not an AI scan". Selecting a sample does not call `/api/scan` and does not add a scan-history entry. Uploaded and camera photos continue through the real AI endpoint.
