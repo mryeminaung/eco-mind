@@ -9,11 +9,10 @@ import {
   Leaf,
   RotateCcw,
   Coins,
-  ShieldCheck,
+  ExternalLink,
   HelpCircle,
 } from "lucide-react";
 import { ScanResult } from "@/types";
-import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { useLocale } from "@/i18n/LocaleContext";
 
@@ -32,6 +31,8 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
 }) => {
   const { t } = useLocale();
   const isRecyclable = result.recyclable;
+  const diyQuery = encodeURIComponent(`${result.material} upcycling DIY tutorial`);
+  const showDiy = result.diySafe === true && !/batter|electronic|e-waste|chemical|medical|sharp|broken|aerosol|pressuri[sz]ed|contaminat/i.test(`${result.material} ${result.category} ${result.itemDescription || ""}`);
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white overflow-hidden">
@@ -53,12 +54,7 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
             <p className="text-xs text-white/70">{t("scan.result.network")}</p>
           </div>
         </div>
-        <Badge
-          variant={isRecyclable ? "success" : "destructive"}
-          className="shrink-0 text-xs"
-        >
-          {isRecyclable ? t("scan.result.take") : t("scan.result.waste")}
-        </Badge>
+
       </div>
 
       <div className="p-5 sm:p-6 space-y-5">
@@ -73,12 +69,7 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
                 {result.category}
               </span>
-              {result.confidenceScore && (
-                <span className="text-[11px] text-emerald-700 font-semibold inline-flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  {Math.round(result.confidenceScore * 100)}%
-                </span>
-              )}
+
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
               {result.material}
@@ -96,7 +87,7 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
               {t("scan.result.buyback")}
             </p>
             <p className="text-sm font-extrabold text-slate-900 mt-1">
-              {result.estimatedMyanmarValue || "250 – 450 MMK/kg"}
+              {t("scan.result.noRate")}
             </p>
           </div>
           <div className="rounded-2xl bg-lima-50 border border-lima-100 p-3.5">
@@ -125,6 +116,25 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
             </ol>
           </div>
         )}
+
+        <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4 space-y-3">
+          <h3 className="text-sm font-bold text-slate-900">{t("scan.diy.title")}</h3>
+          <p className="text-sm text-slate-600">{t(showDiy ? "scan.diy.description" : "scan.diy.unavailable")}</p>
+          {showDiy && (
+            <div className="flex flex-col sm:flex-row gap-2">
+              {[
+                { name: "YouTube", href: `https://www.youtube.com/results?search_query=${diyQuery}` },
+                { name: "TikTok", href: `https://www.tiktok.com/search?q=${diyQuery}` },
+              ].map(({ name, href }) => (
+                <a key={name} href={href} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-teal-200 bg-white px-4 py-2 text-sm font-semibold text-teal-900 hover:bg-teal-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-700"
+                  aria-label={`${t("scan.diy.search")} ${name} (${t("scan.diy.newTab")})`}>
+                  {t("scan.diy.search")} {name}<ExternalLink className="h-4 w-4" aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
 
         {source && (
           <p className="text-[11px] text-slate-400 flex items-center gap-1 pt-1 border-t border-slate-100">
