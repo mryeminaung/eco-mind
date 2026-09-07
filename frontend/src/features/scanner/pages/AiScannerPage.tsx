@@ -1,5 +1,7 @@
 import { SAMPLE_ITEMS, getSampleResult } from "@/features/scanner/samples";
-import React, { useState } from "react";
+import { useAuth } from "@/features/auth/AuthContext";
+import { loadHistory, saveHistory, makeThumbnail, type SavedScan } from "@/features/scanner/history";
+import React, { useEffect, useState } from "react";
 import {
   Sparkles,
   Recycle,
@@ -22,6 +24,9 @@ import { useLocale } from "@/i18n/LocaleContext";
 
 export const AiScannerPage: React.FC = () => {
   const { t } = useLocale();
+  const { user } = useAuth();
+  const historyKey = `ecomind-scans-v1:${user?.id || user?._id || "anonymous"}`;
+  const [storageFailed, setStorageFailed] = useState(false);
   const categories = [
     { name: t("scan.cat.plastic"), hint: t("scan.cat.plasticHint"), icon: Recycle },
     { name: t("scan.cat.paper"), hint: t("scan.cat.paperHint"), icon: Package },
@@ -36,9 +41,17 @@ export const AiScannerPage: React.FC = () => {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [apiSource, setApiSource] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
-  const [scanHistory, setScanHistory] = useState<
-    Array<{ id: string; result: ScanResult; timestamp: string; image: string }>
-  >([]);
+  const [scanHistory, setScanHistory] = useState<SavedScan[]>([]);
+  useEffect(() => {
+    const saved = loadHistory(historyKey);
+    setScanHistory(saved);
+    setSelectedImage(saved[0]?.image || null);
+    setScanResult(saved[0]?.result || null);
+    setApiSource(saved[0]?.source);
+    setSampleId(null);
+    setError(null);
+    setStorageFailed(false);
+  }, [historyKey]);
 
   const handleImageSelected = async (base64: string, mimeType: string) => {
     setSampleId(null);
@@ -66,15 +79,16 @@ export const AiScannerPage: React.FC = () => {
       const response = await api.scanWaste(imgToScan, typeToScan);
       setScanResult(response.data);
       setApiSource(response.source);
-      setScanHistory((prev) => [
-        {
-          id: `scan-${Date.now()}`,
-          result: response.data,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          image: imgToScan,
-        },
-        ...prev.slice(0, 7),
-      ]);
+      const entry: SavedScan = {
+        id: crypto.randomUUID(),
+        result: response.data,
+        source: response.source,
+        timestamp: new Date().toLocaleString(),
+        image: await makeThumbnail(imgToScan),
+      };
+      const next = [entry, ...scanHistory].slice(0, 8);
+      setScanHistory(next);
+      setStorageFailed(!saveHistory(historyKey, next));
     } catch (err: any) {
       console.error("Scan error:", err);
       const messages: Record<string, string> = {
@@ -221,21 +235,31 @@ export const AiScannerPage: React.FC = () => {
       </div>
 
 
+      {storageFailed && <p role="status" className="text-sm text-amber-800">{t("scan.history.unsaved")}</p>}
       {scanHistory.length > 0 && (
         <section className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
               <History className="w-4 h-4 text-emerald-600" />
               {t("scan.session")}
             </h2>
-            <span className="text-xs text-slate-500">{t("scan.sessionCount", { count: scanHistory.length })}</span>
+            <Button variant="outline" size="sm" disabled={isLoading} onClick={() => {
+              if (saveHistory(historyKey, [])) {
+                setScanHistory([]);
+                setStorageFailed(false);
+                handleClear();
+              } else setStorageFailed(true);
+            }}>{t("scan.history.clear")}</Button>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex gap-3 overflow-x-auto pb-1">
             {scanHistory.map((item) => (
               <button
                 key={item.id}
+                disabled={isLoading}
                 type="button"
                 onClick={() => {
+                  setSampleId(null);
+                  setApiSource(item.source);
                   setSelectedImage(item.image);
                   setScanResult(item.result);
                   setError(null);
@@ -243,7 +267,7 @@ export const AiScannerPage: React.FC = () => {
                 className="shrink-0 w-36 text-left rounded-2xl border border-slate-200 bg-white p-2 hover:border-emerald-400 transition-colors"
               >
                 <div className="h-20 rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  <img src={item.image} alt={item.result.material} className="w-full h-full object-cover" />
+                  {item.image && <img src={item.image} alt={item.result.material} className="w-full h-full object-cover" />}
                 </div>
                 <p className="text-xs font-bold text-slate-900 truncate">{item.result.material}</p>
                 <div className="flex items-center justify-between gap-1 mt-0.5">
