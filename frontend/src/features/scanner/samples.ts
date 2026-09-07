@@ -46,7 +46,15 @@ export function getSampleResult(sample: typeof SAMPLE_ITEMS[number]): ScanResult
     glass: ["Empty and rinse the bottle.", "Keep it intact; do not break it.", "Confirm glass acceptance with your collector."],
     ewaste: ["Do not dismantle, crush or burn the device.", "Keep it dry and separate from household waste.", "Contact an electronics collection service for handling instructions."],
   };
+  const burmese: Record<string, { material: string; category: string; instructions: string[] }> = {
+    plastic: { material: "ပလတ်စတစ်ရေဘူး", category: "PET ပလတ်စတစ်", instructions: ["ဘူးထဲရှိ အရည်ကို သွန်ပြီး ဆေးကြောပါ။", "အဖုံးကို ခွဲထားရန် လိုမလို စုဆောင်းသူထံ မေးပါ။", "ညစ်ညမ်းသောအမှိုက်များနှင့် ခွဲထားပါ။"] },
+    cardboard: { material: "ကတ်ထူပုံး", category: "စက္ကူ", instructions: ["တိပ်နှင့် ပလတ်စတစ်ထုပ်ပိုးပစ္စည်းများကို ဖယ်ပါ။", "ပုံးကို ခေါက်ပြားပြီး ခြောက်သွေ့အောင်ထားပါ။"] },
+    can: { material: "အလူမီနီယမ်သံဘူး", category: "သတ္တု", instructions: ["ဘူးထဲရှိ အရည်ကို သွန်ပြီး ဆေးကြောပါ။", "ချွန်ထက်သောအစွန်းများကို လက်ဖြင့် မထိပါနှင့်။", "ဘူးကို ချေသင့်မသင့် စုဆောင်းသူထံ မေးပါ။"] },
+    glass: { material: "ဖန်ပုလင်း", category: "ဖန်", instructions: ["ပုလင်းကို အလွတ်ထားပြီး ဆေးကြောပါ။", "မကွဲအောင်ထားပါ။ မခွဲပါနှင့်။", "ဖန်ပုလင်း လက်ခံမခံ စုဆောင်းသူထံ မေးပါ။"] },
+    ewaste: { material: "အီလက်ထရွန်နစ်အမှိုက် / ဆားကစ်ပြား", category: "အီလက်ထရွန်နစ်အမှိုက်", instructions: ["စက်ကို မဖြုတ်ပါနှင့်၊ မချေပါနှင့်၊ မီးမရှို့ပါနှင့်။", "ခြောက်သွေ့အောင်ထားပြီး အိမ်သုံးအမှိုက်နှင့် ခွဲထားပါ။", "ကိုင်တွယ်နည်းအတွက် အီလက်ထရွန်နစ်အမှိုက် စုဆောင်းသူထံ ဆက်သွယ်ပါ။"] },
+  };
   return {
+    my: { ...burmese[sample.id], environmentalImpact: "ပြန်သုံးခြင်း သို့မဟုတ် စနစ်တကျ ပြန်လည်အသုံးပြုခြင်းဖြင့် အမှိုက်နှင့် သယံဇာတအသစ် လိုအပ်မှုကို လျှော့ချနိုင်သည်။" },
     material: sample.name,
     category: sample.category,
     recyclable: true,

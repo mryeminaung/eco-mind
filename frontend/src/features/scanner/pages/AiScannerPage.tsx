@@ -23,7 +23,7 @@ import { PageSectionHeader } from "@/shared/components/PageSectionHeader";
 import { useLocale } from "@/i18n/LocaleContext";
 
 export const AiScannerPage: React.FC = () => {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { user } = useAuth();
   const historyKey = `ecomind-scans-v1:${user?.id || user?._id || "anonymous"}`;
   const [storageFailed, setStorageFailed] = useState(false);
@@ -224,9 +224,9 @@ export const AiScannerPage: React.FC = () => {
                 className="min-w-0 w-full text-left rounded-2xl border border-slate-200 bg-white p-2 hover:border-emerald-400 transition-colors"
               >
                 <div className="h-20 rounded-xl overflow-hidden bg-slate-100 mb-2">
-                  {item.image && <img src={item.image} alt={item.result.material} className="w-full h-full object-cover" />}
+                  {item.image && <img src={item.image} alt={locale === "my" ? item.result.my?.material || item.result.material : item.result.material} className="w-full h-full object-cover" />}
                 </div>
-                <p className="text-xs font-bold text-slate-900 truncate">{item.result.material}</p>
+                <p className="text-xs font-bold text-slate-900 truncate">{locale === "my" ? item.result.my?.material || item.result.material : item.result.material}</p>
                 <div className="flex items-center justify-between gap-1 mt-0.5">
                   <span className="text-[11px] text-slate-500 truncate">{item.timestamp}</span>
                   <Badge

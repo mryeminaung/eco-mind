@@ -31,7 +31,8 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
   onScanAnother,
   scannedImage,
 }) => {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const display = locale === "my" && result.my ? result.my : result;
   const isRecyclable = result.recyclable;
   const diyQuery = encodeURIComponent(`${result.material} upcycling DIY tutorial`);
   const showDiy = result.diySafe === true && !/batter|electronic|e-waste|chemical|medical|sharp|broken|aerosol|pressuri[sz]ed|contaminat/i.test(`${result.material} ${result.category} ${result.itemDescription || ""}`);
@@ -61,24 +62,25 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
       </div>
 
       <div className="p-5 sm:p-6 space-y-5">
+        {locale === "my" && !result.my && <p className="text-sm text-amber-800">{t("scan.translation.missing")}</p>}
         <div className="flex gap-4 items-start">
           {scannedImage && (
             <div className="w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-              <img src={scannedImage} alt={result.material} className="w-full h-full object-cover" />
+              <img src={scannedImage} alt={display.material} className="w-full h-full object-cover" />
             </div>
           )}
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
-                {result.category}
+                {display.category}
               </span>
 
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              {result.material}
+              {display.material}
             </h2>
-            {result.itemDescription && (
-              <p className="text-sm text-slate-600 leading-relaxed">{result.itemDescription}</p>
+            {display.itemDescription && (
+              <p className="text-sm text-slate-600 leading-relaxed">{display.itemDescription}</p>
             )}
           </div>
         </div>
@@ -99,16 +101,16 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
               {t("scan.result.impact")}
             </p>
             <p className="text-sm font-semibold text-slate-800 mt-1 leading-snug">
-              {result.environmentalImpact}
+              {display.environmentalImpact}
             </p>
           </div>
         </div>
 
-        {result.instructions?.length > 0 && (
+        {display.instructions?.length > 0 && (
           <div className="space-y-2.5">
             <h3 className="text-sm font-bold text-slate-900">{t("scan.result.prep")}</h3>
             <ol className="space-y-2">
-              {result.instructions.map((step, idx) => (
+              {display.instructions.map((step, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-sm text-slate-700">
                   <span className="w-6 h-6 rounded-full bg-emerald-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
                     {idx + 1}

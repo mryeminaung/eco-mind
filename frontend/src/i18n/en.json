@@ -563,5 +563,6 @@
   "scan.sample.label": "Sample result ? not an AI scan",
   "scan.sample.help": "Explore a prepared example instantly. No photo or AI request needed.",
   "scan.history.clear": "Clear history",
-  "scan.history.unsaved": "Your scan is available, but browser storage could not be updated. It may not survive a reload."
+  "scan.history.unsaved": "Your scan is available, but browser storage could not be updated. It may not survive a reload.",
+  "scan.translation.missing": "This saved scan has no Burmese translation. Scan the photo again to get both languages."
 }
