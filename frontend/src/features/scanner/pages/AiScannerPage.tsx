@@ -1,3 +1,4 @@
+import { SAMPLE_ITEMS, getSampleResult } from "@/features/scanner/samples";
 import React, { useState } from "react";
 import {
   Sparkles,
@@ -28,6 +29,7 @@ export const AiScannerPage: React.FC = () => {
     { name: t("scan.cat.metal"), hint: t("scan.cat.metalHint"), icon: Cylinder },
     { name: t("scan.cat.ewaste"), hint: t("scan.cat.ewasteHint"), icon: Cpu },
   ];
+  const [sampleId, setSampleId] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +41,7 @@ export const AiScannerPage: React.FC = () => {
   >([]);
 
   const handleImageSelected = async (base64: string, mimeType: string) => {
+    setSampleId(null);
     setSelectedImage(base64);
     setImageMimeType(mimeType);
     setError(null);
@@ -47,6 +50,7 @@ export const AiScannerPage: React.FC = () => {
   };
 
   const triggerScan = async (base64Data?: string, mime?: string) => {
+    if (sampleId && !base64Data) return;
     const imgToScan = base64Data || selectedImage;
     const typeToScan = mime || imageMimeType;
 
@@ -73,13 +77,21 @@ export const AiScannerPage: React.FC = () => {
       ]);
     } catch (err: any) {
       console.error("Scan error:", err);
-      setError(err?.message || t("scan.failed"));
+      const messages: Record<string, string> = {
+        SCAN_IMAGE_UNCLEAR: "scan.error.unclear",
+        SCAN_IMAGE_INVALID: "scan.invalidFile",
+        SCAN_LOGIN: "scan.error.login",
+        SCAN_CONNECTION: "scan.error.connection",
+      };
+      setError(t(messages[err?.code] || "scan.error.unavailable"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleClear = () => {
+    setSampleId(null);
+    setApiSource(undefined);
     setSelectedImage(null);
     setScanResult(null);
     setError(null);
@@ -124,6 +136,28 @@ export const AiScannerPage: React.FC = () => {
             onClear={handleClear}
           />
 
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-slate-800">{t("scan.trySample")}</p>
+            <p className="text-xs text-slate-500">{t("scan.sample.help")}</p>
+            <div className="grid grid-cols-5 gap-2">
+              {SAMPLE_ITEMS.map(sample => (
+                <button key={sample.id} type="button" disabled={isLoading}
+                  aria-pressed={sampleId === sample.id}
+                  onClick={() => {
+                    setSampleId(sample.id);
+                    setSelectedImage(sample.dataUri);
+                    setScanResult(getSampleResult(sample));
+                    setApiSource(undefined);
+                    setError(null);
+                  }}
+                  className={`rounded-2xl border p-2 text-center transition-colors disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-600 ${sampleId === sample.id ? "border-emerald-500 bg-lima-50" : "border-slate-200 bg-white hover:bg-lima-50"}`}>
+                  <span aria-hidden="true" className="block text-xl">{sample.icon}</span>
+                  <span className="block text-xs font-semibold">{t(`scan.cat.${({ plastic: "plastic", cardboard: "paper", can: "metal", glass: "glass", ewaste: "ewaste" } as Record<string, string>)[sample.id]}`)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {selectedImage && !isLoading && !scanResult && !error && (
             <Button variant="eco" className="w-full gap-2 font-bold" onClick={() => triggerScan()}>
               <Sparkles className="w-4 h-4" />
@@ -144,6 +178,7 @@ export const AiScannerPage: React.FC = () => {
               </Button>
             </div>
           )}
+
         </div>
 
         <div className="lg:col-span-6 space-y-6">
@@ -151,6 +186,7 @@ export const AiScannerPage: React.FC = () => {
             <ScannerLoadingState previewImage={selectedImage} />
           ) : scanResult ? (
             <ScanResultCard
+              isSample={sampleId !== null}
               result={scanResult}
               source={apiSource}
               onScanAnother={handleClear}
@@ -183,6 +219,7 @@ export const AiScannerPage: React.FC = () => {
           )}
         </div>
       </div>
+
 
       {scanHistory.length > 0 && (
         <section className="space-y-3">

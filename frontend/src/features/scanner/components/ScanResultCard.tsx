@@ -17,6 +17,7 @@ import { Button } from "@/shared/ui/button";
 import { useLocale } from "@/i18n/LocaleContext";
 
 interface ScanResultCardProps {
+  isSample?: boolean;
   result: ScanResult;
   source?: string;
   onScanAnother: () => void;
@@ -24,6 +25,7 @@ interface ScanResultCardProps {
 }
 
 export const ScanResultCard: React.FC<ScanResultCardProps> = ({
+  isSample = false,
   result,
   source,
   onScanAnother,
@@ -36,6 +38,7 @@ export const ScanResultCard: React.FC<ScanResultCardProps> = ({
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white overflow-hidden">
+      {isSample && <p role="status" className="bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-900">{t("scan.sample.label")}</p>}
       <div
         className={`px-5 py-4 flex items-center justify-between gap-3 ${
           isRecyclable
